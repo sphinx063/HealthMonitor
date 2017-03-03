@@ -13,8 +13,10 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import mcgroup16.asu.com.mc_group16.service.AccelerometerService;
+import mcgroup16.asu.com.mc_group16.utility.DatabaseUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,15 +38,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText patientAgeTextBox = null;
     private Button nextButton = null;
 
-    SQLiteDatabase patientDb = null;
+    //SQLiteDatabase patientDb = null;
+    DatabaseUtil dbHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         try {
-            patientDb = this.openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
+            getApplicationContext().deleteDatabase(DB_NAME);
+            dbHelper = new DatabaseUtil(this,DB_NAME);
+            //patientDb = this.openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
             Toast.makeText(this, "Database created successfully ", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this, "Problem in creating database", Toast.LENGTH_SHORT).show();
@@ -72,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 patientSex = radioButtonSex.getText().toString();
 
                 TABLE_NAME = patientName + "_" + patientId + "_" + patientAge + "_" + patientSex;
-                CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS "
+               /* CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS "
                         + TABLE_NAME
                         + " ( "
                         + " timestamp TEXT, "
@@ -80,9 +84,13 @@ public class MainActivity extends AppCompatActivity {
                         + " y_val REAL, "
                         + " z_val REAL"
                         + " );";
-
+                */
+                dbHelper.createTable(TABLE_NAME);
+                //double[] d = {2.5,4.6,9.7,2121};
+                //dbHelper.addSample(d);
+                //dbHelper.getAllSamples();
                 try {
-                    patientDb.execSQL(CREATE_TABLE_SQL);
+                    //patientDb.execSQL(CREATE_TABLE_SQL);
                     Toast.makeText(getApplicationContext(), "Table created successfully", Toast.LENGTH_SHORT).show();
                 } catch (SQLException e) {
                     Toast.makeText(getApplicationContext(), "Problem in creating table", Toast.LENGTH_SHORT).show();
@@ -95,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
                     Intent moveToGraphActivity = new Intent(getApplicationContext(), DevelopGraph.class);
                     moveToGraphActivity.putExtra("EXTRA_PATIENT_NAME", patientName);
                     moveToGraphActivity.putExtra("EXTRA_PATIENT_AGE", patientAge);
+                    moveToGraphActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
+                    moveToGraphActivity.putExtra("EXTRA_TABLE_NAME", TABLE_NAME);
                     startActivity(moveToGraphActivity);
                 }
             }

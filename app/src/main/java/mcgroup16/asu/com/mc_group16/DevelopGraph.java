@@ -1,6 +1,10 @@
 package mcgroup16.asu.com.mc_group16;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -8,6 +12,7 @@ import android.hardware.SensorManager;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import mcgroup16.asu.com.mc_group16.service.AccelerometerService;
+import mcgroup16.asu.com.mc_group16.utility.DatabaseUtil;
 
 
 public class DevelopGraph extends AppCompatActivity implements SensorEventListener {
@@ -30,8 +36,27 @@ public class DevelopGraph extends AppCompatActivity implements SensorEventListen
     private Handler handle = null;
     private LinearLayout devGraph = null;
 
-    private SensorManager sensor = null;
+    private String DB_NAME = null;
+    private String TABLE_NAME = null;
+    private DatabaseUtil db = null;
+    private SensorManager sensorManager = null;
+    private Sensor accelerometer = null;
 
+    private double[] sensorData = {5.77,9.32,1.7,5555};
+    private final SensorEventListener sensorEventListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            sensorData[0] = event.values[0];
+            sensorData[1] = event.values[1];
+            sensorData[2] = event.values[2];
+            sensorData[3] = event.values[3];
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -39,10 +64,13 @@ public class DevelopGraph extends AppCompatActivity implements SensorEventListen
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_develop_graph);
-
         String patientName = getIntent().getStringExtra("EXTRA_PATIENT_NAME");
         String patientAge = getIntent().getStringExtra("EXTRA_PATIENT_AGE");
-
+        DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
+        TABLE_NAME = getIntent().getStringExtra("EXTRA_TABLE_NAME");
+        db = new DatabaseUtil(this,DB_NAME);
+        db.addSample(sensorData,TABLE_NAME);
+        db.getAllSamples(TABLE_NAME);
         TextView txtPatientName = (TextView) findViewById(R.id.txtPatientName);
         TextView txtPatientAge = (TextView) findViewById(R.id.txtPatientAge);
         txtPatientName.setText(patientName);
@@ -78,6 +106,8 @@ public class DevelopGraph extends AppCompatActivity implements SensorEventListen
                 if (runningGraphView != null) {
                     devGraph.removeView(runningGraphView);
                 }
+
+                //readFromDatabase();
                 runningGraphView = new GraphView(getApplicationContext(), runningValues, "Health Monitoring UI", X_Labels, Y_Labels, GraphView.LINE);
                 runningGraphView.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
 
@@ -95,7 +125,47 @@ public class DevelopGraph extends AppCompatActivity implements SensorEventListen
         });
 
     }
+    private void initAccelerometer(){
+        sensorManager  = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorData = new double[4];
+        if(accelerometer!=null){
+            sensorManager.registerListener(sensorEventListener,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+    @Override
+    public void onResume(){
+        sensorManager.registerListener(sensorEventListener,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
+    }
+    @Override
+    public void onPause(){
+        sensorManager.unregisterListener(sensorEventListener,accelerometer);
+    }
+    public void writeToDatabase(double[] data){
+//        String insertQuery = "INSERT INTO "+TABLE_NAME
+//                +" VALUES("
+//                +sensorData[3] +","
+//                +sensorData[0] +","
+//                +sensorData[1] +","
+//                +sensorData[2]+");";
+        //db.execSQL(insertQuery);
+        //ContentValues values = new ContentValues();
+        //values.put("timestamp");
 
+    }
+    public void readFromDatabase(){
+//        Cursor cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME,null);
+//        cursor.moveToFirst();
+//        String timestamp = cursor.getString(0);
+//        String x_val = cursor.getString(1);
+//        String y_val = cursor.getString(2);
+//        String z_val = cursor.getString(3);
+//        Log.d("X value = ",x_val);
+//        Log.d("Y value = ",y_val);
+//        Log.d("Z value = ",z_val);
+//        Log.d("timestamp value = ",timestamp);
+//        System.out.println("X_Y_Z Values: " + x_val +", " + y_val + "," + z_val);
+    }
     private void getAccelerometer(SensorEvent event) {
 
         float[] values = event.values;
