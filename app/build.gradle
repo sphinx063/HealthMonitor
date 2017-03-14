@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+    useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "mcgroup16.asu.com.mc_group16"
         minSdkVersion 21
@@ -29,4 +30,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.jjoe64:graphview:4.2.1'
     testCompile 'junit:junit:4.12'
+
 }

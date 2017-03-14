@@ -8,7 +8,9 @@
     <string name="rdb_lbl_male">Male</string>
     <string name="rdb_lbl_female">Female</string>
     <string name="btn_lbl_next">Next</string>
+    <string name="btn_lbl_clear">Clear</string>
     <string name="btn_lbl_run">Run</string>
     <string name="btn_lbl_stop">Stop</string>
-
+    <string name="btn_lbl_upload">Upload Database</string>
+    <string name="btn_lbl_download">Download Database</string>
 </resources>

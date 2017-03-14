@@ -1,4 +1,4 @@
-package com.asu.mlenka.mc_group;
+package mcgroup16.asu.com.mc_group16.model;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;

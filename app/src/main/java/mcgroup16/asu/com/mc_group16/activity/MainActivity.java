@@ -1,8 +1,7 @@
-package mcgroup16.asu.com.mc_group16;
+package mcgroup16.asu.com.mc_group16.activity;
 
 import android.content.Intent;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,10 +11,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import java.sql.Timestamp;
-import java.util.List;
-
-import mcgroup16.asu.com.mc_group16.service.AccelerometerService;
+import mcgroup16.asu.com.mc_group16.R;
 import mcgroup16.asu.com.mc_group16.utility.DatabaseUtil;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,47 +21,36 @@ public class MainActivity extends AppCompatActivity {
     private String patientId = null;
     private String patientAge = null;
     private String patientSex = null;
-    private Timestamp timestamp = null;
-
     private String TABLE_NAME = null;
-    private String CREATE_TABLE_SQL = null;
-    private String INSERT_INTO_TABLE_SQL = null;
 
     private RadioGroup radioGroupSex = null;
     private RadioButton radioButtonSex = null;
-    private EditText patientTextBox = null;
+    private EditText patientNameTextBox = null;
     private EditText patientIdTextBox = null;
     private EditText patientAgeTextBox = null;
     private Button nextButton = null;
+    private Button clearButton = null;
 
-    //SQLiteDatabase patientDb = null;
     DatabaseUtil dbHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {
-            getApplicationContext().deleteDatabase(DB_NAME);
-            dbHelper = new DatabaseUtil(this,DB_NAME);
-            //patientDb = this.openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
-            Toast.makeText(this, "Database created successfully ", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "Problem in creating database", Toast.LENGTH_SHORT).show();
-        }
+        getApplicationContext().deleteDatabase(DB_NAME);
+
+        dbHelper = new DatabaseUtil(this, DB_NAME);
 
         nextButton = (Button) findViewById(R.id.btn_next);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                timestamp = new Timestamp(System.currentTimeMillis());
-
                 patientIdTextBox = (EditText) findViewById(R.id.patientIdText);
                 patientId = patientIdTextBox.getText().toString();
 
-                patientTextBox = (EditText) findViewById(R.id.patientNameText);
-                patientName = patientTextBox.getText().toString();
+                patientNameTextBox = (EditText) findViewById(R.id.patientNameText);
+                patientName = patientNameTextBox.getText().toString().trim();
 
                 patientAgeTextBox = (EditText) findViewById(R.id.patientAgeText);
                 patientAge = patientAgeTextBox.getText().toString();
@@ -75,23 +60,19 @@ public class MainActivity extends AppCompatActivity {
                 radioButtonSex = (RadioButton) findViewById(selectedId);
                 patientSex = radioButtonSex.getText().toString();
 
-                TABLE_NAME = patientName + "_" + patientId + "_" + patientAge + "_" + patientSex;
-               /* CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS "
-                        + TABLE_NAME
-                        + " ( "
-                        + " timestamp TEXT, "
-                        + " x_val REAL, "
-                        + " y_val REAL, "
-                        + " z_val REAL"
-                        + " );";
-                */
-                dbHelper.createTable(TABLE_NAME);
-                //double[] d = {2.5,4.6,9.7,2121};
-                //dbHelper.addSample(d);
-                //dbHelper.getAllSamples();
+                String localName = "";
+                String name[] = patientName.split(" ");
+                if (name.length > 1) {
+                    for (String str : name) {
+                        localName += "_" + str;
+                    }
+                } else {
+                    localName = patientName;
+                }
+                TABLE_NAME = localName + "_" + patientId + "_" + patientAge + "_" + patientSex;
+
                 try {
-                    //patientDb.execSQL(CREATE_TABLE_SQL);
-                    Toast.makeText(getApplicationContext(), "Table created successfully", Toast.LENGTH_SHORT).show();
+                    dbHelper.createTable(TABLE_NAME);
                 } catch (SQLException e) {
                     Toast.makeText(getApplicationContext(), "Problem in creating table", Toast.LENGTH_SHORT).show();
                 }
@@ -100,13 +81,23 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please enter patient's information to proceed", Toast.LENGTH_SHORT).show();
                 } else {
                     // starting graph activity
-                    Intent moveToGraphActivity = new Intent(getApplicationContext(), DevelopGraph.class);
+                    Intent moveToGraphActivity = new Intent(getApplicationContext(), GraphActivity.class);
                     moveToGraphActivity.putExtra("EXTRA_PATIENT_NAME", patientName);
                     moveToGraphActivity.putExtra("EXTRA_PATIENT_AGE", patientAge);
                     moveToGraphActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
                     moveToGraphActivity.putExtra("EXTRA_TABLE_NAME", TABLE_NAME);
                     startActivity(moveToGraphActivity);
                 }
+            }
+        });
+
+        clearButton = (Button) findViewById(R.id.btn_clear);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                patientIdTextBox.setText("");
+                patientAgeTextBox.setText("");
+                patientNameTextBox.setText("");
             }
         });
     }
