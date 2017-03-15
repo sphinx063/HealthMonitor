@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import mcgroup16.asu.com.mc_group16.model.Row;
 import mcgroup16.asu.com.mc_group16.model.Sample;
 
 /**
@@ -31,13 +32,18 @@ public class DatabaseUtil extends SQLiteOpenHelper {
 
     public void createTable(String TABLE_NAME) {
         this.TABLE_NAME = TABLE_NAME;
+        char[] xyz = {'x','y','z'};
+        String columns = "";
+        for(int i=0;i<50;i++){
+            for (int j=0;j<3;j++) {
+                columns = columns + xyz[j] + i + " REAL, ";
+            }
+        }
+        columns = columns+"ActivityLabel TEXT";
         String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS "
                 + TABLE_NAME
                 + " ( "
-                + " timestamp INTEGER, "
-                + " x_val REAL, "
-                + " y_val REAL, "
-                + " z_val REAL"
+                + columns
                 + " );";
         this.getWritableDatabase().execSQL(CREATE_TABLE_SQL);
     }
@@ -59,7 +65,23 @@ public class DatabaseUtil extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
-
+    public void addRow(Row row, String TABLE_NAME){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        ArrayList<Double> rowData = row.getData();
+        String activity = row.getActivity();
+        char[] xyz = {'x','y','z'};
+        int currentIndex = 0;
+        for(int i=0;i<rowData.size();i++) {
+            values.put(xyz[i%3]+""+currentIndex,rowData.get(i));
+            if(i!=0 && i%3==0){
+                currentIndex++;
+            }
+        }
+        values.put("ActivityLabel",activity);
+        db.insert(TABLE_NAME,null,values);
+        db.close();
+    }
     /*Get k most recent samples from DB*/
     public List<Sample> getSamplesFromDB(String TABLE_NAME, int k) {
         String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY timestamp DESC LIMIT " + k;
