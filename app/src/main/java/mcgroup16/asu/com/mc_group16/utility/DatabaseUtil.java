@@ -112,6 +112,8 @@ public class DatabaseUtil extends SQLiteOpenHelper {
             allRows.add(new Row((ArrayList<Double>) values,cursor.getString(150)));
             values.clear();
         }
+        cursor.close();
+        db.close();
         return allRows;
     }
 }
