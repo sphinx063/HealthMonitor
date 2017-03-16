@@ -99,4 +99,19 @@ public class DatabaseUtil extends SQLiteOpenHelper {
         cursor.close();
         return sampleList;
     }
+    public List<Row> getRows(String TABLE_NAME,int k){
+        String query = "SELECT * FROM " + TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query,null);
+        List<Row> allRows = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        while(cursor.moveToNext()){
+            for(int i=0;i<150;i++){
+                values.add(cursor.getDouble(i));
+            }
+            allRows.add(new Row((ArrayList<Double>) values,cursor.getString(150)));
+            values.clear();
+        }
+        return allRows;
+    }
 }
