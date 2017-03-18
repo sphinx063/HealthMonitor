@@ -8,18 +8,18 @@ import java.util.ArrayList;
 
 public class Row {
     private ArrayList<Double> data = null;
-    private String activity;
+    private String labelActivity;
 
-    public Row(ArrayList<Double> data, String activity) {
+    public Row(ArrayList<Double> data, String labelActivity) {
         this.data = data;
-        this.activity = activity;
+        this.labelActivity = labelActivity;
     }
 
     public ArrayList<Double> getData() {
         return data;
     }
 
-    public String getActivity() {
-        return activity;
+    public String getLabelActivity() {
+        return labelActivity;
     }
 }

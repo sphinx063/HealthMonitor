@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_data_collect"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="mcgroup16.asu.com.mc_group16.activity.DataCollectActivity">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,5 +57,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_standard_top_margin"
         android:text="@string/btn_lbl_collect" />
+
+    <Button
+        android:id="@+id/btn_test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_lbl_test" />
 
 </LinearLayout>

@@ -18,4 +18,5 @@
     <string name="rdb_lbl_walk">Walk</string>
     <string name="rdb_lbl_eat">Eat</string>
     <string name="lbl_data_collect">Data Collection</string>
+    <string name="btn_lbl_test">Test</string>
 </resources>

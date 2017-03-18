@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +35,11 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private static final String WALK_OPTION = "Walk";
     private static final String EAT_OPTION = "Eat";
     private Button btnCollect = null;
+    private Button btnTest = null;
 
     // Database utility related declarations
     private String DB_NAME = null;
-    private String TABLE_NAME = "training";
+    private String TABLE_NAME = "training_table";
     private DatabaseUtil dbHelper = null;
 
     @Override
@@ -47,17 +49,17 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         initiateAccelerometer();
 
         DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
-        TABLE_NAME = getIntent().getStringExtra("EXTRA_TABLE_NAME");
 
         // DB handler instance initialization
         dbHelper = new DatabaseUtil(this, DB_NAME);
+        dbHelper.createTable(TABLE_NAME);
 
         btnCollect = (Button) findViewById(R.id.btn_collect);
         btnCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                radioGroupCollectData = (RadioGroup) findViewById(R.id.radio_sex);
+                radioGroupCollectData = (RadioGroup) findViewById(R.id.radio_data_collect);
                 int selectedId = radioGroupCollectData.getCheckedRadioButtonId();
                 radioButtonCollect = (RadioButton) findViewById(selectedId);
                 String collectOption = radioButtonCollect.getText().toString();
@@ -72,9 +74,21 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
                 insertHandle = new Handler();
                 insertHandle.post(insertIntoTrainingArray);
-
             }
         });
+
+
+        btnTest = (Button) findViewById(R.id.btn_test);
+        btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                List<Row> rows = dbHelper.getRows(TABLE_NAME, 0);
+                List<Double> numColumns = rows.get(0).getData();
+                String label = rows.get(0).getLabelActivity();
+                Toast.makeText(DataCollectActivity.this, "Number of rows inserted: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
+            }
+        });
+
     }
 
     private Runnable insertIntoTrainingArray = new Runnable() {

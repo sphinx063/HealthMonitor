@@ -70,7 +70,7 @@ public class DatabaseUtil extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         ArrayList<Double> rowData = row.getData();
-        String activity = row.getActivity();
+        String activity = row.getLabelActivity();
         char[] xyz = {'x', 'y', 'z'};
         int currentIndex = 0;
         for (int i = 0; i < rowData.size(); i++) {
@@ -101,17 +101,18 @@ public class DatabaseUtil extends SQLiteOpenHelper {
         cursor.close();
         return sampleList;
     }
-    public List<Row> getRows(String TABLE_NAME,int k){
+
+    public List<Row> getRows(String TABLE_NAME, int k) {
         String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query,null);
+        Cursor cursor = db.rawQuery(query, null);
         List<Row> allRows = new ArrayList<>();
         List<Double> values = new ArrayList<>();
-        while(cursor.moveToNext()){
-            for(int i=0;i<150;i++){
+        while (cursor.moveToNext()) {
+            for (int i = 0; i < 150; i++) {
                 values.add(cursor.getDouble(i));
             }
-            allRows.add(new Row((ArrayList<Double>) values,cursor.getString(150)));
+            allRows.add(new Row((ArrayList<Double>) values, cursor.getString(150)));
             values.clear();
         }
         cursor.close();
