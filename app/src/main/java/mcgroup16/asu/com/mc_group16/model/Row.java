@@ -9,14 +9,17 @@ import java.util.ArrayList;
 public class Row {
     private ArrayList<Double> data = null;
     private String activity;
-    public Row(ArrayList<Double> data,String activity){
+
+    public Row(ArrayList<Double> data, String activity) {
         this.data = data;
         this.activity = activity;
     }
-    public ArrayList<Double> getData(){
-        return  data;
+
+    public ArrayList<Double> getData() {
+        return data;
     }
-    public String getActivity(){
+
+    public String getActivity() {
         return activity;
     }
 }
