@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please enter patient's information to proceed", Toast.LENGTH_SHORT).show();
                 } else {
                     // starting graph activity
-                    Intent moveToGraphActivity = new Intent(getApplicationContext(), GraphActivity.class);
+                    Intent moveToGraphActivity = new Intent(getApplicationContext(), DataCollectActivity.class);
                     moveToGraphActivity.putExtra("EXTRA_PATIENT_NAME", patientName);
                     moveToGraphActivity.putExtra("EXTRA_PATIENT_AGE", patientAge);
                     moveToGraphActivity.putExtra("EXTRA_DB_NAME", DB_NAME);

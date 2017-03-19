@@ -32,14 +32,14 @@ public class DatabaseUtil extends SQLiteOpenHelper {
 
     public void createTable(String TABLE_NAME) {
         this.TABLE_NAME = TABLE_NAME;
-        char[] xyz = {'x','y','z'};
+        char[] xyz = {'x', 'y', 'z'};
         String columns = "";
-        for(int i=0;i<50;i++){
-            for (int j=0;j<3;j++) {
+        for (int i = 0; i < 50; i++) {
+            for (int j = 0; j < 3; j++) {
                 columns = columns + xyz[j] + i + " REAL, ";
             }
         }
-        columns = columns+"ActivityLabel TEXT";
+        columns = columns + "ActivityLabel TEXT";
         String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS "
                 + TABLE_NAME
                 + " ( "
@@ -65,13 +65,14 @@ public class DatabaseUtil extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
+
     /*Add 5 seconds of sensor data @10 Hz to the table*/
     public void addRow(Row row, String TABLE_NAME){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         ArrayList<Double> rowData = row.getData();
-        String activity = row.getActivity();
-        char[] xyz = {'x','y','z'};
+        String activity = row.getLabelActivity();
+        char[] xyz = {'x', 'y', 'z'};
         int currentIndex = 0;
         for(int i=0;i<rowData.size();i++) {
             if(i!=0 && i%3==0){
@@ -80,11 +81,13 @@ public class DatabaseUtil extends SQLiteOpenHelper {
             values.put(xyz[i%3]+""+currentIndex,rowData.get(i));
 
         }
+        
         values.put("ActivityLabel",activity);
         db.insert(TABLE_NAME,null,values);
         Log.i("DatabaseUtil","Added one row");
         db.close();
     }
+
     /*Get k most recent samples from DB*/
     public List<Sample> getSamplesFromDB(String TABLE_NAME, int k) {
         String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY timestamp DESC LIMIT " + k;
@@ -103,6 +106,7 @@ public class DatabaseUtil extends SQLiteOpenHelper {
         db.close();
         return sampleList;
     }
+
     /*Get all rows from the table*/
     public List<Row> getRows(String TABLE_NAME){
         String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY ROWID";
