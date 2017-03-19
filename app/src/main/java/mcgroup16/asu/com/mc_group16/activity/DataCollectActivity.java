@@ -82,10 +82,10 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Row> rows = dbHelper.getRows(TABLE_NAME, 0);
+                List<Row> rows = dbHelper.getRows(TABLE_NAME);
                 List<Double> numColumns = rows.get(0).getData();
                 String label = rows.get(0).getLabelActivity();
-                Toast.makeText(DataCollectActivity.this, "Number of rows inserted: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
+                Toast.makeText(DataCollectActivity.this, "Number of rows: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
             }
         });
 
