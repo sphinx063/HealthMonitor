@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,6 @@ public class DatabaseUtil extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private String TABLE_NAME = null;
-
     public DatabaseUtil(Context context, final String DATABASE_NAME) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -66,28 +66,32 @@ public class DatabaseUtil extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void addRow(Row row, String TABLE_NAME) {
+    /*Add 5 seconds of sensor data @10 Hz to the table*/
+    public void addRow(Row row, String TABLE_NAME){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         ArrayList<Double> rowData = row.getData();
         String activity = row.getLabelActivity();
         char[] xyz = {'x', 'y', 'z'};
         int currentIndex = 0;
-        for (int i = 0; i < rowData.size(); i++) {
-            values.put(xyz[i % 3] + "" + currentIndex, rowData.get(i));
-            if (i != 0 && i % 3 == 0) {
+        for(int i=0;i<rowData.size();i++) {
+            if(i!=0 && i%3==0){
                 currentIndex++;
             }
+            values.put(xyz[i%3]+""+currentIndex,rowData.get(i));
+
         }
-        values.put("ActivityLabel", activity);
-        db.insert(TABLE_NAME, null, values);
+        
+        values.put("ActivityLabel",activity);
+        db.insert(TABLE_NAME,null,values);
+        Log.i("DatabaseUtil","Added one row");
         db.close();
     }
 
     /*Get k most recent samples from DB*/
     public List<Sample> getSamplesFromDB(String TABLE_NAME, int k) {
         String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY timestamp DESC LIMIT " + k;
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         List<Sample> sampleList = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -99,24 +103,27 @@ public class DatabaseUtil extends SQLiteOpenHelper {
             sampleList.add(sample);
         }
         cursor.close();
+        db.close();
         return sampleList;
     }
 
-    public List<Row> getRows(String TABLE_NAME, int k) {
-        String query = "SELECT * FROM " + TABLE_NAME;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+    /*Get all rows from the table*/
+    public List<Row> getRows(String TABLE_NAME){
+        String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY ROWID";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query,null);
         List<Row> allRows = new ArrayList<>();
-        List<Double> values = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            for (int i = 0; i < 150; i++) {
+        while(cursor.moveToNext()){
+            List<Double> values = new ArrayList<>();
+            for(int i=0;i<150;i++){
+
                 values.add(cursor.getDouble(i));
             }
-            allRows.add(new Row((ArrayList<Double>) values, cursor.getString(150)));
-            values.clear();
+            allRows.add(new Row((ArrayList<Double>) values,cursor.getString(150)));
         }
         cursor.close();
         db.close();
         return allRows;
     }
+
 }
