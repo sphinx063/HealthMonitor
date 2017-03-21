@@ -36,7 +36,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private Handler insertHandle = null;
     private RadioGroup radioGroupCollectData = null;
     private RadioButton radioButtonCollect = null;
-    private String activityLabel = null;
+    private int activityLabel;
     private static final String RUN_OPTION = "Run";
     private static final String WALK_OPTION = "Walk";
     private static final String EAT_OPTION = "Eat";
@@ -79,11 +79,11 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 String collectOption = radioButtonCollect.getText().toString();
 
                 if (collectOption.equals(RUN_OPTION)) {
-                    activityLabel = RUN_OPTION;
+                    activityLabel = 1;
                 } else if (collectOption.equals(WALK_OPTION)) {
-                    activityLabel = WALK_OPTION;
+                    activityLabel = -1;
                 } else {
-                    activityLabel = EAT_OPTION;
+                    activityLabel = 0;
                 }
 
                 // initializing file handling operations prior to starting collecting data
@@ -137,7 +137,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
             } else if (trainingArray.size() == 150) {
                 insertHandle.removeCallbacksAndMessages(null);
-                writeToFile = activityLabel;
+                writeToFile = String.valueOf(activityLabel);
                 for (int i = 0; i < 150; i++) {
                     writeToFile += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
