@@ -24,7 +24,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.DataCollectActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <activity android:name=".activity.SVMTrainingActivity"></activity>
     </application>
 
 </manifest>

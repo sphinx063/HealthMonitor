@@ -42,6 +42,9 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private String TABLE_NAME = "training_table";
     private DatabaseUtil dbHelper = null;
 
+    static{
+        System.loadLibrary("jnilibsvm");
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +89,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 List<Double> numColumns = rows.get(0).getData();
                 String label = rows.get(0).getLabelActivity();
                 Toast.makeText(DataCollectActivity.this, "Number of rows: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
+
             }
         });
 

@@ -15,10 +15,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mcgroup16.asu.com.mc_group16.R;
 import mcgroup16.asu.com.mc_group16.model.GraphView;
+import mcgroup16.asu.com.mc_group16.model.Row;
 import mcgroup16.asu.com.mc_group16.model.Sample;
 import mcgroup16.asu.com.mc_group16.task.UploadDatabaseTask;
 import mcgroup16.asu.com.mc_group16.utility.DatabaseUtil;
@@ -39,6 +41,7 @@ public class GraphActivity extends AppCompatActivity implements SensorEventListe
     private Button btnDownload = null;
     private Handler postHandle = null;
     private Handler insertHandle = null;
+    private Handler rowHandle = null;
     private LinearLayout graphLayout = null;
     private String databaseUri = null;
 
@@ -49,6 +52,9 @@ public class GraphActivity extends AppCompatActivity implements SensorEventListe
     private SensorManager sensorManager = null;
     private Sensor accelerometer = null;
     private double[] sensorData = null;
+    private ArrayList<Double> rowData = null;
+    private String activityLabel = null;
+    private static int rower = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +77,12 @@ public class GraphActivity extends AppCompatActivity implements SensorEventListe
         TextView txtPatientAge = (TextView) findViewById(R.id.txtPatientAge);
         txtPatientName.setText(patientName);
         txtPatientAge.setText(patientAge);
-
+        System.out.println("In Graph Activity");
         final String[] X_Labels = new String[]{"0", "50", "100", "150", "200", "250"};
         final String[] Y_Labels = new String[]{"50", "100", "150", "200", "250"};
         runningValues = new float[20];
         defaultValues = new float[20];
-
+        rowData = new ArrayList<>();
         graphLayout = (LinearLayout) findViewById(R.id.develop_graph);
         defaultGraphView = new GraphView(getApplicationContext(), defaultValues, "Health Monitoring UI", X_Labels, Y_Labels, GraphView.LINE);
         defaultGraphView.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
@@ -149,17 +155,43 @@ public class GraphActivity extends AppCompatActivity implements SensorEventListe
     private Runnable insertDataIntoDBThread = new Runnable() {
         @Override
         public void run() {
-            long timestamp = (long) sensorData[0];
-            Sample sample = new Sample(timestamp, sensorData[1], sensorData[2], sensorData[3]);
-            dbHelper.addSampleToDB(sample, TABLE_NAME);
+            //long timestamp = (long) sensorData[0];
+            //Sample sample = new Sample(timestamp, sensorData[1], sensorData[2], sensorData[3]);
+            ArrayList<Double> list= new ArrayList<>();
+            for(int i=0;i<150;i++){
+                list.add(8.5+rower);
+            }
+            Row row = new Row(list,"Running");
+            dbHelper.addRow(row,TABLE_NAME);
+            rower++;
+            //dbHelper.addSampleToDB(sample, TABLE_NAME);
             insertHandle.postDelayed(this, 1000);
+        }
+    };
+    private Runnable insertDataIntoRow = new Runnable() {
+        @Override
+        public void run() {
+            //long timestamp = (long) sensorData[0];
+            rowData.add(sensorData[1]);
+            rowData.add(sensorData[2]);
+            rowData.add(sensorData[3]);
+            rowHandle.postDelayed(this, 100);
         }
     };
 
     private Runnable postDataOnGraphThread = new Runnable() {
         @Override
         public void run() {
-            List<Sample> latestSensorSamples = dbHelper.getSamplesFromDB(TABLE_NAME, 20);
+            List<Row> allRows = dbHelper.getRows(TABLE_NAME);
+            System.out.println("Size: = "+allRows.size());
+            for(Row row:allRows){
+                for(Double d:row.getData()){
+                    System.out.print(d+"\t");
+                }
+                System.out.print(row.getLabelActivity());
+                System.out.println();
+            }
+          /*  List<Sample> latestSensorSamples = dbHelper.getSamplesFromDB(TABLE_NAME, 20);
             for (int i = 0; i < latestSensorSamples.size(); i++) {
                 Sample sample = latestSensorSamples.get(i);
                 float plotData = (float) (sample.getX() * sample.getY() * sample.getZ());
@@ -168,7 +200,8 @@ public class GraphActivity extends AppCompatActivity implements SensorEventListe
             runningGraphView.setValues(runningValues);
             graphLayout.removeView(runningGraphView);
             graphLayout.addView(runningGraphView);
-            postHandle.postDelayed(this, 1000);
+            ostHandle.postDelayed(this, 1000);
+            */
         }
     };
 
