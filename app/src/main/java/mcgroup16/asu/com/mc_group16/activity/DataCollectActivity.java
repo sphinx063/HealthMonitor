@@ -14,6 +14,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +36,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private Handler insertHandle = null;
     private RadioGroup radioGroupCollectData = null;
     private RadioButton radioButtonCollect = null;
-    private String activityLabel = null;
+    private int activityLabel;
     private static final String RUN_OPTION = "Run";
     private static final String WALK_OPTION = "Walk";
     private static final String EAT_OPTION = "Eat";
@@ -41,6 +47,14 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private String DB_NAME = null;
     private String TABLE_NAME = "training_table";
     private DatabaseUtil dbHelper = null;
+
+    // file handling declarations
+    FileOutputStream outputStream = null;
+    BufferedWriter bw = null;
+    File trainingFile = null;
+    String writeToFile = null;
+    FileInputStream fin = null;
+    String trainFileName = "training.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,15 +79,25 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 String collectOption = radioButtonCollect.getText().toString();
 
                 if (collectOption.equals(RUN_OPTION)) {
-                    activityLabel = RUN_OPTION;
+                    activityLabel = 1;
                 } else if (collectOption.equals(WALK_OPTION)) {
-                    activityLabel = WALK_OPTION;
+                    activityLabel = -1;
                 } else {
-                    activityLabel = EAT_OPTION;
+                    activityLabel = 0;
+                }
+
+                // initializing file handling operations prior to starting collecting data
+                try {
+                    trainingFile = new File(getApplicationContext().getFilesDir(), trainFileName);
+                    outputStream = new FileOutputStream(trainingFile);
+                    bw = new BufferedWriter(new OutputStreamWriter(outputStream));
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Error occured while initializing file", Toast.LENGTH_SHORT).show();
                 }
 
                 insertHandle = new Handler();
                 insertHandle.post(insertIntoTrainingArray);
+
             }
         });
 
@@ -82,10 +106,21 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Row> rows = dbHelper.getRows(TABLE_NAME);
-                List<Double> numColumns = rows.get(0).getData();
-                String label = rows.get(0).getLabelActivity();
-                Toast.makeText(DataCollectActivity.this, "Number of rows: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
+//                List<Row> rows = dbHelper.getRows(TABLE_NAME);
+//                List<Double> numColumns = rows.get(0).getData();
+//                String label = rows.get(0).getLabelActivity();
+//                Toast.makeText(DataCollectActivity.this, "Number of rows: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
+                try {
+                    fin = openFileInput(trainFileName);
+                    int c;
+                    String temp = "";
+                    while ((c = fin.read()) != -1) {
+                        temp = temp + Character.toString((char) c);
+                    }
+                    Toast.makeText(DataCollectActivity.this, temp, Toast.LENGTH_LONG).show();
+                } catch (IOException e) {
+                    Toast.makeText(DataCollectActivity.this, "Error ocurred while reading file", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -102,8 +137,25 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
             } else if (trainingArray.size() == 150) {
                 insertHandle.removeCallbacksAndMessages(null);
-                Row row = new Row(trainingArray, activityLabel);
-                dbHelper.addRow(row, TABLE_NAME);
+                writeToFile = String.valueOf(activityLabel);
+                for (int i = 0; i < 150; i++) {
+                    writeToFile += " " + (i + 1) + ":" + trainingArray.get(i);
+                }
+                try {
+                    bw.write(writeToFile);
+                    bw.newLine();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        bw.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                // adding row to database
+//                Row row = new Row(trainingArray, activityLabel);
+//                dbHelper.addRow(row, TABLE_NAME);
             }
         }
     };
