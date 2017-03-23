@@ -1,4 +1,4 @@
-package mcgroup16.asu.com.mc_group16.activity;
+package mcgroup16.asu.com.group16.activity;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -21,11 +21,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 
-import mcgroup16.asu.com.mc_group16.R;
-import mcgroup16.asu.com.mc_group16.model.Row;
-import mcgroup16.asu.com.mc_group16.utility.DatabaseUtil;
+import mcgroup16.asu.com.group16.R;
+import mcgroup16.asu.com.group16.utility.DatabaseUtil;
 
 public class DataCollectActivity extends AppCompatActivity implements SensorEventListener {
 

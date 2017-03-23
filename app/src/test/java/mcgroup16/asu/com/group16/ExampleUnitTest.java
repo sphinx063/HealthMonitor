@@ -1,4 +1,4 @@
-package mcgroup16.asu.com.mc_group16;
+package mcgroup16.asu.com.group16;
 
 import org.junit.Test;
 
