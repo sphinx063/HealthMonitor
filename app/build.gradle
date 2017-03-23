@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
-        applicationId "mcgroup16.asu.com.mc_group16"
+        applicationId "mcgroup16.asu.com.group16"
         minSdkVersion 21
         targetSdkVersion 25
         versionCode 1

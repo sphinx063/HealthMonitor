@@ -1,4 +1,4 @@
-package mcgroup16.asu.com.mc_group16.model;
+package mcgroup16.asu.com.group16.model;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
