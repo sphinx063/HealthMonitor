@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import mcgroup16.asu.com.group16.R;
@@ -60,6 +61,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private String appDataTrainingPath;
     private String appDataModelPath;
     private String appDataTestPath;
+    private String appDataPredictPath;
     //Native methods
     static {
         System.loadLibrary("jnilibsvm");
@@ -143,9 +145,16 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         @Override
         public void run() {
             if (trainingArray.size() < 150) {
-                trainingArray.add(sensorData[1]);
-                trainingArray.add(sensorData[2]);
-                trainingArray.add(sensorData[3]);
+                BigDecimal[] bigDecimals = new BigDecimal[3];
+                bigDecimals[0] = new BigDecimal(sensorData[0]);
+                bigDecimals[1] = new BigDecimal(sensorData[1]);
+                bigDecimals[2] = new BigDecimal(sensorData[2]);
+                bigDecimals[0] = bigDecimals[0].setScale(5,BigDecimal.ROUND_HALF_UP);
+                bigDecimals[1] = bigDecimals[1].setScale(5,BigDecimal.ROUND_HALF_UP);
+                bigDecimals[2] = bigDecimals[2].setScale(5,BigDecimal.ROUND_HALF_UP);
+                trainingArray.add(bigDecimals[0].doubleValue());
+                trainingArray.add(bigDecimals[1].doubleValue());
+                trainingArray.add(bigDecimals[2].doubleValue());
                 insertHandle.postDelayed(this, 100);
 
             } else if (trainingArray.size() == 150) {
@@ -181,9 +190,18 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
-
+    private double[] bigRoundOff(double[] sensorData){
+        double[] tempData = new double[sensorData.length-1];
+        for(int i=0;i<sensorData.length-1;i++){
+            BigDecimal bigDecimal = new BigDecimal(sensorData[i]);
+            bigDecimal = bigDecimal.setScale(4,BigDecimal.ROUND_HALF_UP);
+            tempData[i] = bigDecimal.doubleValue();
+        }
+        return tempData;
+    }
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+
         sensorData[0] = sensorEvent.values[0];
         sensorData[1] = sensorEvent.values[1];
         sensorData[2] = sensorEvent.values[2];
@@ -212,11 +230,14 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         appDataTrainingPath = appDataPath+"/"+trainFileName;
         appDataTestPath = appDataPath+"/"+"test";
         appDataModelPath = appDataPath+"/"+"model";
-
+        appDataPredictPath = appDataPath+"/"+"output";
     }
     private void svmTrain(){
         String svmOptions = "-t 2 ";
-       // jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
+        //jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
+    }
+    private void svmPredict(){
+        //jniSvmPredict(appDataTestPath+" "+appDataModelPath+" "+appDataPredictPath);
     }
     private void createFolders(){
         File folder = new File(appDataPath);
