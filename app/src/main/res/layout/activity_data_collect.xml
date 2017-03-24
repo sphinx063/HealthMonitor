@@ -24,44 +24,82 @@
 
     </LinearLayout>
 
-    <RadioGroup
-        android:id="@+id/radio_data_collect"
+    <LinearLayout
+        android:id="@+id/layout_radio_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <RadioButton
-            android:id="@+id/radio_run"
+        <RadioGroup
+            android:id="@+id/radio_collect_data"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/rdb_lbl_run" />
+            android:layout_marginRight="@dimen/activity_radio_group_gap"
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/radio_walk"
+            <RadioButton
+                android:id="@+id/radio_run"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/rdb_lbl_run" />
+
+            <RadioButton
+                android:id="@+id/radio_walk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rdb_lbl_walk" />
+
+            <RadioButton
+                android:id="@+id/radio_eat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rdb_lbl_eat" />
+
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/radio_data_choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rdb_lbl_walk" />
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/radio_eat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/rdb_lbl_eat" />
+            <RadioButton
+                android:id="@+id/radio_train"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/rdb_lbl_train" />
 
-    </RadioGroup>
+            <RadioButton
+                android:id="@+id/radio_test"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rdb_lbl_test" />
+
+        </RadioGroup>
+
+    </LinearLayout>
 
     <Button
-        android:id="@+id/btn_collect"
+        android:id="@+id/btn_collect_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_standard_top_margin"
         android:text="@string/btn_lbl_collect" />
 
     <Button
-        android:id="@+id/btn_test"
+        android:id="@+id/btn_check_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/btn_lbl_test" />
+        android:layout_marginTop="@dimen/activity_standard_top_margin"
+        android:text="@string/btn_lbl_check_data" />
+
+    <Button
+        android:id="@+id/btn_train"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_standard_top_margin"
+        android:text="@string/btn_lbl_train" />
 
 </LinearLayout>
