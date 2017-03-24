@@ -35,7 +35,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private SensorManager sensorManager = null;
     private Sensor accelerometer = null;
     private double[] sensorData = null;
-    private ArrayList<Double> trainingArray = new ArrayList<Double>();
+    private ArrayList<Double> trainingArray;
     private int activityLabel;
     private static final String RUN_OPTION = "Run";
     private static final String WALK_OPTION = "Walk";
@@ -49,7 +49,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     // handler related declarations
     private static final int HAS_FINISHED = 1;
     private Handler insertHandle = null;
-    private boolean isFinished = false;
 
     // Database utility related declarations
     private String DB_NAME = null;
@@ -65,6 +64,8 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     FileInputStream fin = null;
     String trainFileName = "train";
     String testFileName = "test";
+    String modelFileName = "model";
+    String predcitFileName = "output";
 
     //SVM files
     private String storagePath;
@@ -78,8 +79,8 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         System.loadLibrary("jnilibsvm");
     }
 
-//    private native void jniSvmTrain(String cmd);
-//    private native void jniSvmPredict(String cmd);
+    //private native void jniSvmTrain(String cmd);
+    //private native void jniSvmPredict(String cmd);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,9 +136,9 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     fw = new FileWriter(dataFile.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Error occured while initializing file", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Error:"+e, Toast.LENGTH_SHORT).show();
                 }
-
+                trainingArray = new ArrayList<Double>();
                 insertHandle = new Handler();
                 insertHandle.post(insertIntoTrainTestArray);
 
@@ -148,7 +149,12 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         btnTrainModel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                svmTrain();
+                try{
+                    svmTrain();
+                    Toast.makeText(getApplicationContext(), "Training completed", Toast.LENGTH_SHORT).show();
+                }catch (Exception e){
+                    Toast.makeText(getApplicationContext(), "Error while training model", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -200,13 +206,25 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 }
             }
         });
+        Button btnPredict = (Button) findViewById(R.id.btn_predict);
+        btnPredict.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    svmPredict();
+                    Toast.makeText(getApplicationContext(), "Prediction completed", Toast.LENGTH_SHORT).show();
+                }catch (Exception e){
+                    Toast.makeText(getApplicationContext(), "Error while predicting", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private Runnable insertIntoTrainTestArray = new Runnable() {
         @Override
         public void run() {
-            if (trainingArray.size() < 150 && !isFinished) {
-                BigDecimal[] bigDecimals = new BigDecimal[3];
+            if (trainingArray.size() < 150) {
+                /*BigDecimal[] bigDecimals = new BigDecimal[3];
                 bigDecimals[0] = new BigDecimal(sensorData[0]);
                 bigDecimals[1] = new BigDecimal(sensorData[1]);
                 bigDecimals[2] = new BigDecimal(sensorData[2]);
@@ -216,10 +234,14 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 trainingArray.add(bigDecimals[0].doubleValue());
                 trainingArray.add(bigDecimals[1].doubleValue());
                 trainingArray.add(bigDecimals[2].doubleValue());
+                insertHandle.postDelayed(this, 100);*/
+                trainingArray.add(sensorData[0]);
+                trainingArray.add(sensorData[1]);
+                trainingArray.add(sensorData[2]);
                 insertHandle.postDelayed(this, 100);
 
             } else if (trainingArray.size() == 150) {
-                isFinished = true;
+                insertHandle.removeCallbacksAndMessages(null);
                 row = String.valueOf(activityLabel);
                 for (int i = 0; i < 150; i++) {
                     row += " " + (i + 1) + ":" + trainingArray.get(i);
@@ -286,12 +308,12 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         sensorManager.unregisterListener(this, accelerometer);
     }
     private void initDataPaths(){
-        storagePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/";
+        storagePath = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+"/";
         appDataPath = storagePath+"libsvm";
         appDataTrainingPath = appDataPath+"/"+trainFileName;
-        appDataTestPath = appDataPath+"/"+"test";
-        appDataModelPath = appDataPath+"/"+"model";
-        appDataPredictPath = appDataPath+"/"+"output";
+        appDataTestPath = appDataPath+"/"+testFileName;
+        appDataModelPath = appDataPath+"/"+modelFileName;
+        appDataPredictPath = appDataPath+"/"+predcitFileName;
     }
 
     private void svmTrain() {
@@ -307,7 +329,8 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         if (folder.exists()) {
             removeDirectory(folder);
         }
-        folder.mkdir();
+        boolean created = folder.mkdir();
+        int i=1;
     }
 
     private static void removeDirectory(File dir) {

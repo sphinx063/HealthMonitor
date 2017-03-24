@@ -24,4 +24,5 @@
     <string name="btn_lbl_check_data">Check Label Count</string>
     <string name="btn_lbl_check_test_data">Check Test File</string>
     <string name="btn_lbl_collect_test">Collect Test Data</string>
+    <string name="btn_lbl_predict">Predict</string>
 </resources>
