@@ -15,12 +15,14 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 import mcgroup16.asu.com.group16.R;
@@ -32,15 +34,20 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private Sensor accelerometer = null;
     private double[] sensorData = null;
     private ArrayList<Double> trainingArray = new ArrayList<Double>();
-    private Handler insertHandle = null;
-    private RadioGroup radioGroupCollectData = null;
-    private RadioButton radioButtonCollect = null;
     private int activityLabel;
     private static final String RUN_OPTION = "Run";
     private static final String WALK_OPTION = "Walk";
-    private static final String EAT_OPTION = "Eat";
-    private Button btnCollect = null;
-    private Button btnTest = null;
+    private Button btnCollectData = null;
+    private Button btnTrainModel = null;
+    private Button btnCollectTest = null;
+    private Button btnCheckData = null;
+    private Button btnCheckTest = null;
+    private String trainOrTestFile = null;
+
+    // handler related declarations
+    private static final int HAS_FINISHED = 1;
+    private Handler insertHandle = null;
+    private boolean isFinished = false;
 
     // Database utility related declarations
     private String DB_NAME = null;
@@ -50,112 +57,166 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     // file handling declarations
     FileOutputStream outputStream = null;
     BufferedWriter bw = null;
+    BufferedReader br = null;
     File trainingFile = null;
-    String writeToFile = null;
+    String row = null;
     FileInputStream fin = null;
     String trainFileName = "train";
+    String testFileName = "test";
+
     //SVM files
     private String storagePath;
     private String appDataPath;
     private String appDataTrainingPath;
     private String appDataModelPath;
     private String appDataTestPath;
+
     //Native methods
     static {
         System.loadLibrary("jnilibsvm");
     }
-    //private native void jniSvmTrain(String cmd);
-    //private native void jniSvmPredict(String cmd);
+
+//    private native void jniSvmTrain(String cmd);
+//    private native void jniSvmPredict(String cmd);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_collect);
+
         initDataPaths();
         createFolders();
         initiateAccelerometer();
-        DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
 
-        // DB handler instance initialization
-        dbHelper = new DatabaseUtil(this, DB_NAME);
-        dbHelper.createTable(TABLE_NAME);
+//        DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
+//
+//        // DB handler instance initialization
+//        dbHelper = new DatabaseUtil(this, DB_NAME);
+//        dbHelper.createTable(TABLE_NAME);
 
-        btnCollect = (Button) findViewById(R.id.btn_collect);
-        btnCollect.setOnClickListener(new View.OnClickListener() {
+        btnCollectData = (Button) findViewById(R.id.btn_collect_data);
+        btnCollectData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                radioGroupCollectData = (RadioGroup) findViewById(R.id.radio_data_collect);
+                RadioGroup radioGroupDataChoice = (RadioGroup) findViewById(R.id.radio_data_choice);
+                int choice = radioGroupDataChoice.getCheckedRadioButtonId();
+                RadioButton radioButtonChoice = (RadioButton) findViewById(choice);
+                String choiceOption = radioButtonChoice.getText().toString();
+
+                if (choiceOption.equals("Train")) {
+                    trainOrTestFile = trainFileName;
+                } else {
+                    trainOrTestFile = testFileName;
+                }
+
+                RadioGroup radioGroupCollectData = (RadioGroup) findViewById(R.id.radio_collect_data);
                 int selectedId = radioGroupCollectData.getCheckedRadioButtonId();
-                radioButtonCollect = (RadioButton) findViewById(selectedId);
+                RadioButton radioButtonCollect = (RadioButton) findViewById(selectedId);
                 String collectOption = radioButtonCollect.getText().toString();
 
                 if (collectOption.equals(RUN_OPTION)) {
-                    activityLabel = 1;
-                } else if (collectOption.equals(WALK_OPTION)) {
-                    activityLabel = -1;
-                } else {
                     activityLabel = 0;
+                } else if (collectOption.equals(WALK_OPTION)) {
+                    activityLabel = 1;
+                } else {
+                    activityLabel = 2;
                 }
 
                 // initializing file handling operations prior to starting collecting data
+                FileWriter fw = null;
                 try {
-                    trainingFile = new File(appDataPath,trainFileName);
-                    outputStream = new FileOutputStream(trainingFile);
-                    bw = new BufferedWriter(new OutputStreamWriter(outputStream));
+                    File dataFile = new File(appDataPath, trainOrTestFile);
+                    if (!dataFile.exists()) {
+                        dataFile.createNewFile();
+                    }
+                    fw = new FileWriter(dataFile.getAbsoluteFile(), true);
+                    bw = new BufferedWriter(fw);
                 } catch (IOException e) {
                     Toast.makeText(getApplicationContext(), "Error occured while initializing file", Toast.LENGTH_SHORT).show();
                 }
 
                 insertHandle = new Handler();
-                insertHandle.post(insertIntoTrainingArray);
+                insertHandle.post(insertIntoTrainTestArray);
 
             }
         });
 
-
-        btnTest = (Button) findViewById(R.id.btn_test);
-        btnTest.setOnClickListener(new View.OnClickListener() {
+        btnTrainModel = (Button) findViewById(R.id.btn_train);
+        btnTrainModel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 svmTrain();
-//                List<Row> rows = dbHelper.getRows(TABLE_NAME);
-//                List<Double> numColumns = rows.get(0).getData();
-//                String label = rows.get(0).getLabelActivity();
-//                Toast.makeText(DataCollectActivity.this, "Number of rows: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
-                /*try {
-                    fin = openFileInput(trainFileName);
-                    int c;
-                    String temp = "";
-                    while ((c = fin.read()) != -1) {
-                        temp = temp + Character.toString((char) c);
-                    }
-                    Toast.makeText(DataCollectActivity.this, temp, Toast.LENGTH_LONG).show();
-                } catch (IOException e) {
-                    Toast.makeText(DataCollectActivity.this, "Error ocurred while reading file", Toast.LENGTH_LONG).show();
-                }*/
             }
         });
 
+        btnCheckData = (Button) findViewById(R.id.btn_check_data);
+        btnCheckData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+
+                    RadioGroup radioGroupDataChoice = (RadioGroup) findViewById(R.id.radio_data_choice);
+                    int choice = radioGroupDataChoice.getCheckedRadioButtonId();
+                    RadioButton radioButtonChoice = (RadioButton) findViewById(choice);
+                    String choiceOption = radioButtonChoice.getText().toString();
+
+                    if (choiceOption.equals("Train")) {
+                        trainOrTestFile = trainFileName;
+                    } else {
+                        trainOrTestFile = testFileName;
+                    }
+
+                    char actLabel = '\0';
+                    RadioGroup radioGroupCollectData = (RadioGroup) findViewById(R.id.radio_collect_data);
+                    int selectedId = radioGroupCollectData.getCheckedRadioButtonId();
+                    RadioButton radioButtonCollect = (RadioButton) findViewById(selectedId);
+                    String collectOption = radioButtonCollect.getText().toString();
+
+                    if (collectOption.equals(RUN_OPTION)) {
+                        actLabel = '0';
+                    } else if (collectOption.equals(WALK_OPTION)) {
+                        actLabel = '1';
+                    } else {
+                        actLabel = '2';
+                    }
+
+                    File trainFile = new File(appDataPath, trainOrTestFile);
+                    br = new BufferedReader(new FileReader(trainFile));
+                    String readLine = "";
+                    int dataCount = 0;
+                    while ((readLine = br.readLine()) != null) {
+                        char label = readLine.charAt(0);
+                        if (label == actLabel) {
+                            dataCount++;
+                        }
+                    }
+                    Toast.makeText(getApplicationContext(), "Data count for " + activityLabel + " is: " + dataCount, Toast.LENGTH_SHORT).show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
-    private Runnable insertIntoTrainingArray = new Runnable() {
+    private Runnable insertIntoTrainTestArray = new Runnable() {
         @Override
         public void run() {
-            if (trainingArray.size() < 150) {
+            if (trainingArray.size() < 150 && !isFinished) {
+                trainingArray.add(sensorData[0]);
                 trainingArray.add(sensorData[1]);
                 trainingArray.add(sensorData[2]);
-                trainingArray.add(sensorData[3]);
                 insertHandle.postDelayed(this, 100);
 
             } else if (trainingArray.size() == 150) {
-                insertHandle.removeCallbacksAndMessages(null);
-                writeToFile = String.valueOf(activityLabel);
+                isFinished = true;
+                row = String.valueOf(activityLabel);
                 for (int i = 0; i < 150; i++) {
-                    writeToFile += " " + (i + 1) + ":" + trainingArray.get(i);
+                    row += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
                 try {
-                    bw.write(writeToFile);
+                    bw.write(row);
                     bw.newLine();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -206,25 +267,29 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         super.onPause();
         sensorManager.unregisterListener(this, accelerometer);
     }
-    private void initDataPaths(){
-        storagePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/";
-        appDataPath = storagePath+"libsvm";
-        appDataTrainingPath = appDataPath+"/"+trainFileName;
-        appDataTestPath = appDataPath+"/"+"test";
-        appDataModelPath = appDataPath+"/"+"model";
+
+    private void initDataPaths() {
+        storagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+        appDataPath = storagePath + "libsvm";
+        appDataTrainingPath = appDataPath + "/" + trainFileName;
+        appDataTestPath = appDataPath + "/" + "test";
+        appDataModelPath = appDataPath + "/" + "model";
 
     }
-    private void svmTrain(){
+
+    private void svmTrain() {
         String svmOptions = "-t 2 ";
-       // jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
+//        jniSvmTrain(svmOptions + appDataTrainingPath + " " + appDataModelPath + " ");
     }
-    private void createFolders(){
+
+    private void createFolders() {
         File folder = new File(appDataPath);
-        if(folder.exists()){
-           removeDirectory(folder);
+        if (folder.exists()) {
+            removeDirectory(folder);
         }
         folder.mkdir();
     }
+
     private static void removeDirectory(File dir) {
         if (dir.isDirectory()) {
             File[] files = dir.listFiles();
