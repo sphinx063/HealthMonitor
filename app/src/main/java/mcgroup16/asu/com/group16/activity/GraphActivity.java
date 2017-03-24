@@ -165,7 +165,7 @@ public class GraphActivity extends AppCompatActivity implements SensorEventListe
                 float plotData = (float) (sample.getX() * sample.getY() * sample.getZ());
                 runningValues[i] = plotData;
             }
-            runningGraphView.setValues(runningValues);
+            runningGraphView.setxValues(runningValues);
             graphLayout.removeView(runningGraphView);
             graphLayout.addView(runningGraphView);
             postHandle.postDelayed(this, 1000);
