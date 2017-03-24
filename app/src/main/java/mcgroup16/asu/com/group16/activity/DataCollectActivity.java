@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -52,14 +53,27 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     File trainingFile = null;
     String writeToFile = null;
     FileInputStream fin = null;
-    String trainFileName = "training.txt";
+    String trainFileName = "train";
+    //SVM files
+    private String storagePath;
+    private String appDataPath;
+    private String appDataTrainingPath;
+    private String appDataModelPath;
+    private String appDataTestPath;
+    //Native methods
+    static {
+        System.loadLibrary("jnilibsvm");
+    }
+    //private native void jniSvmTrain(String cmd);
+    //private native void jniSvmPredict(String cmd);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_collect);
+        initDataPaths();
+        createFolders();
         initiateAccelerometer();
-
         DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
 
         // DB handler instance initialization
@@ -86,7 +100,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
                 // initializing file handling operations prior to starting collecting data
                 try {
-                    trainingFile = new File(getApplicationContext().getFilesDir(), trainFileName);
+                    trainingFile = new File(appDataPath,trainFileName);
                     outputStream = new FileOutputStream(trainingFile);
                     bw = new BufferedWriter(new OutputStreamWriter(outputStream));
                 } catch (IOException e) {
@@ -104,11 +118,12 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                svmTrain();
 //                List<Row> rows = dbHelper.getRows(TABLE_NAME);
 //                List<Double> numColumns = rows.get(0).getData();
 //                String label = rows.get(0).getLabelActivity();
 //                Toast.makeText(DataCollectActivity.this, "Number of rows: " + rows.size() + ", activity label: " + label, Toast.LENGTH_LONG).show();
-                try {
+                /*try {
                     fin = openFileInput(trainFileName);
                     int c;
                     String temp = "";
@@ -118,7 +133,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     Toast.makeText(DataCollectActivity.this, temp, Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     Toast.makeText(DataCollectActivity.this, "Error ocurred while reading file", Toast.LENGTH_LONG).show();
-                }
+                }*/
             }
         });
 
@@ -190,6 +205,38 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     public void onPause() {
         super.onPause();
         sensorManager.unregisterListener(this, accelerometer);
+    }
+    private void initDataPaths(){
+        storagePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/";
+        appDataPath = storagePath+"libsvm";
+        appDataTrainingPath = appDataPath+"/"+trainFileName;
+        appDataTestPath = appDataPath+"/"+"test";
+        appDataModelPath = appDataPath+"/"+"model";
+
+    }
+    private void svmTrain(){
+        String svmOptions = "-t 2 ";
+       // jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
+    }
+    private void createFolders(){
+        File folder = new File(appDataPath);
+        if(folder.exists()){
+           removeDirectory(folder);
+        }
+        folder.mkdir();
+    }
+    private static void removeDirectory(File dir) {
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null && files.length > 0) {
+                for (File aFile : files) {
+                    removeDirectory(aFile);
+                }
+            }
+            dir.delete();
+        } else {
+            dir.delete();
+        }
     }
 
 }
