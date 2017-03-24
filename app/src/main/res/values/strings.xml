@@ -10,18 +10,13 @@
     <string name="btn_lbl_next">Next</string>
     <string name="btn_lbl_clear">Clear</string>
     <string name="btn_lbl_run">Run</string>
-    <string name="btn_lbl_collect">Collect Train/Test Data</string>
+    <string name="btn_lbl_collect">Collect</string>
     <string name="btn_lbl_stop">Stop</string>
     <string name="btn_lbl_upload">Upload Database</string>
     <string name="btn_lbl_download">Download Database</string>
     <string name="rdb_lbl_run">Run</string>
     <string name="rdb_lbl_walk">Walk</string>
     <string name="rdb_lbl_eat">Eat</string>
-    <string name="rdb_lbl_train">Train</string>
-    <string name="rdb_lbl_test">Test</string>
     <string name="lbl_data_collect">Data Collection</string>
-    <string name="btn_lbl_train">Train Model</string>
-    <string name="btn_lbl_check_data">Check Label Count</string>
-    <string name="btn_lbl_check_test_data">Check Test File</string>
-    <string name="btn_lbl_collect_test">Collect Test Data</string>
+    <string name="btn_lbl_test">Test</string>
 </resources>
