@@ -13,21 +13,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="mcgroup16.asu.com.group16.activity.MainActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity
-            android:name="mcgroup16.asu.com.group16.activity.GraphActivity"
+            android:name=".activity.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="mcgroup16.asu.com.group16.activity.DataCollectActivity"
+            android:name=".activity.GraphActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.DataCollectActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+        <activity android:name=".activity.PredictActivity"></activity>
     </application>
 
 </manifest>

@@ -104,6 +104,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         btnCollectData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Data collection started", Toast.LENGTH_SHORT).show();
 
                 RadioGroup radioGroupDataChoice = (RadioGroup) findViewById(R.id.radio_data_choice);
                 int choice = radioGroupDataChoice.getCheckedRadioButtonId();
@@ -144,7 +145,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 trainingArray = new ArrayList<Double>();
                 insertHandle = new Handler();
                 insertHandle.post(insertIntoTrainTestArray);
-                Toast.makeText(getApplicationContext(), "Data collection started", Toast.LENGTH_SHORT).show();
             }
         });
 
