@@ -5,7 +5,7 @@
     <string name="lbl_patient_name">Name:</string>
     <string name="lbl_patient_age">Age:</string>
     <string name="lbl_patient_sex">Sex:</string>
-    <string name="lbl_activity">Activity Predicted:</string>
+    <string name="lbl_activity">You were performing </string>
     <string name="lbl_predict">Prediction</string>
     <string name="lbl_data_collect">Data Collection</string>
 

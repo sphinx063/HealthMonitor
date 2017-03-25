@@ -58,12 +58,9 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private DatabaseUtil dbHelper = null;
 
     // file handling declarations
-    FileOutputStream outputStream = null;
     BufferedWriter bw = null;
     BufferedReader br = null;
-    File trainingFile = null;
     String row = null;
-    FileInputStream fin = null;
     String trainFileName = "train";
     String testFileName = "test";
     String modelFileName = "model";
@@ -93,12 +90,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         initDataPaths();
         createFolders();
         initiateAccelerometer();
-
-//        DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
-//
-//        // DB handler instance initialization
-//        dbHelper = new DatabaseUtil(this, DB_NAME);
-//        dbHelper.createTable(TABLE_NAME);
 
         btnCollectData = (Button) findViewById(R.id.btn_collect_data);
         btnCollectData.setOnClickListener(new View.OnClickListener() {
@@ -219,17 +210,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         @Override
         public void run() {
             if (trainingArray.size() < 150) {
-                /*BigDecimal[] bigDecimals = new BigDecimal[3];
-                bigDecimals[0] = new BigDecimal(sensorData[0]);
-                bigDecimals[1] = new BigDecimal(sensorData[1]);
-                bigDecimals[2] = new BigDecimal(sensorData[2]);
-                bigDecimals[0] = bigDecimals[0].setScale(5,BigDecimal.ROUND_HALF_UP);
-                bigDecimals[1] = bigDecimals[1].setScale(5,BigDecimal.ROUND_HALF_UP);
-                bigDecimals[2] = bigDecimals[2].setScale(5,BigDecimal.ROUND_HALF_UP);
-                trainingArray.add(bigDecimals[0].doubleValue());
-                trainingArray.add(bigDecimals[1].doubleValue());
-                trainingArray.add(bigDecimals[2].doubleValue());
-                insertHandle.postDelayed(this, 100);*/
                 trainingArray.add(sensorData[0]);
                 trainingArray.add(sensorData[1]);
                 trainingArray.add(sensorData[2]);
@@ -262,7 +242,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
     private void initiateAccelerometer() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         sensorData = new double[4];
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
