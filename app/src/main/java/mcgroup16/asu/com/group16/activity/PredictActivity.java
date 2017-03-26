@@ -113,6 +113,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             @Override
             public void onClick(View view) {
                 svmPredict();
+                Log.i(TAG, "SVM predict completed");
 
                 try {
                     File outputFile = new File(appDataPath, outputFileName);
@@ -138,6 +139,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                     Log.e(TAG, "Error: " + e);
                 }
                 Toast.makeText(getApplicationContext(), "Prediction completed", Toast.LENGTH_SHORT).show();
+                btnCollect.setEnabled(true);
             }
         });
     }
