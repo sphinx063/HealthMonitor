@@ -16,7 +16,7 @@ import mcgroup16.asu.com.group16.utility.DatabaseUtil;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String DB_NAME = "MC_Group16";
+    private static final String DB_NAME = "McGroup16";
     private String patientName = null;
     private String patientId = null;
     private String patientAge = null;
@@ -60,33 +60,13 @@ public class MainActivity extends AppCompatActivity {
                 radioButtonSex = (RadioButton) findViewById(selectedId);
                 patientSex = radioButtonSex.getText().toString();
 
-                String localName = "";
-                String name[] = patientName.split(" ");
-                if (name.length > 1) {
-                    for (String str : name) {
-                        localName += "_" + str;
-                    }
-                } else {
-                    localName = patientName;
-                }
-                TABLE_NAME = localName + "_" + patientId + "_" + patientAge + "_" + patientSex;
-
-                try {
-                    dbHelper.createTable(TABLE_NAME);
-                } catch (SQLException e) {
-                    Toast.makeText(getApplicationContext(), "Problem in creating table", Toast.LENGTH_SHORT).show();
-                }
-
                 if (patientId.isEmpty() || patientName.isEmpty() || patientAge.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Please enter patient's information to proceed", Toast.LENGTH_SHORT).show();
                 } else {
                     // starting graph activity
-                    Intent moveToGraphActivity = new Intent(getApplicationContext(), GraphActivity.class);
-                    moveToGraphActivity.putExtra("EXTRA_PATIENT_NAME", patientName);
-                    moveToGraphActivity.putExtra("EXTRA_PATIENT_AGE", patientAge);
-                    moveToGraphActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
-                    moveToGraphActivity.putExtra("EXTRA_TABLE_NAME", TABLE_NAME);
-                    startActivity(moveToGraphActivity);
+                    Intent moveToDataCollectActivity = new Intent(getApplicationContext(), DataCollectActivity.class);
+                    moveToDataCollectActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
+                    startActivity(moveToDataCollectActivity);
                 }
             }
         });
