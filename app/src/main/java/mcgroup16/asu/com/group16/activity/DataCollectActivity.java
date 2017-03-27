@@ -1,6 +1,7 @@
 package mcgroup16.asu.com.group16.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -213,8 +214,9 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         btnPredict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                svmPredict();
-                Toast.makeText(getApplicationContext(), "Prediction completed", Toast.LENGTH_SHORT).show();
+                Intent moveToPredictActivity = new Intent(getApplicationContext(), PredictActivity.class);
+                moveToPredictActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
+                startActivity(moveToPredictActivity);
             }
         });
     }

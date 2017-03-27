@@ -53,17 +53,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        graphButton = (Button) findViewById(R.id.btn_graph);
-        graphButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // starting plot graph activity
-                Intent moveToGraphActivity = new Intent(getApplicationContext(), GraphActivity.class);
-                moveToGraphActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
-                startActivity(moveToGraphActivity);
-
-            }
-        });
+//        graphButton = (Button) findViewById(R.id.btn_graph);
+//        graphButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                // starting plot graph activity
+//                Intent moveToGraphActivity = new Intent(getApplicationContext(), GraphActivity.class);
+//                moveToGraphActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
+//                startActivity(moveToGraphActivity);
+//
+//            }
+//        });
     }
 }

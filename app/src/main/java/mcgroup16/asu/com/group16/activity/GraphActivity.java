@@ -106,8 +106,6 @@ public class GraphActivity extends AppCompatActivity {
                 for (int j = 0; j < xyzValues.size(); j++) {
 
                 }
-//                float plotData = (float) (sample.getX() * sample.getY() * sample.getZ());
-//                runningValuesX[i] = plotData;
             }
             runningGraphView.setxValues(runningValuesX);
             graphLayout.removeView(runningGraphView);
