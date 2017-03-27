@@ -1,12 +1,14 @@
 <resources>
-    <string name="app_name">Health Monitoring (Group 16)</string>
+    <string name="app_name">Activity Monitoring (Group 16)</string>
     <string name="lbl_patient_info">PATIENT INFORMATION</string>
     <string name="lbl_patient_id">ID:</string>
     <string name="lbl_patient_name">Name:</string>
     <string name="lbl_patient_age">Age:</string>
     <string name="lbl_patient_sex">Sex:</string>
-    <string name="rdb_lbl_male">Male</string>
-    <string name="rdb_lbl_female">Female</string>
+    <string name="lbl_activity">You were performing </string>
+    <string name="lbl_predict">Prediction</string>
+    <string name="lbl_data_collect">Data Collection</string>
+
     <string name="btn_lbl_next">Next</string>
     <string name="btn_lbl_clear">Clear</string>
     <string name="btn_lbl_run">Run</string>
@@ -14,15 +16,18 @@
     <string name="btn_lbl_stop">Stop</string>
     <string name="btn_lbl_upload">Upload Database</string>
     <string name="btn_lbl_download">Download Database</string>
-    <string name="rdb_lbl_run">Run</string>
-    <string name="rdb_lbl_walk">Walk</string>
-    <string name="rdb_lbl_eat">Eat</string>
-    <string name="rdb_lbl_train">Train</string>
-    <string name="rdb_lbl_test">Test</string>
-    <string name="lbl_data_collect">Data Collection</string>
     <string name="btn_lbl_train">Train Model</string>
     <string name="btn_lbl_check_data">Check Label Count</string>
     <string name="btn_lbl_check_test_data">Check Test File</string>
     <string name="btn_lbl_collect_test">Collect Test Data</string>
     <string name="btn_lbl_predict">Predict</string>
+    <string name="btn_lbl_collect_predict">Perform Activity For 5 Seconds</string>
+
+    <string name="rdb_lbl_male">Male</string>
+    <string name="rdb_lbl_female">Female</string>
+    <string name="rdb_lbl_run">Run</string>
+    <string name="rdb_lbl_walk">Walk</string>
+    <string name="rdb_lbl_eat">Eat</string>
+    <string name="rdb_lbl_train">Train</string>
+    <string name="rdb_lbl_test">Test</string>
 </resources>
