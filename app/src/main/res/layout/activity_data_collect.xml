@@ -102,11 +102,11 @@
         android:layout_marginTop="@dimen/activity_standard_top_margin"
         android:text="@string/btn_lbl_train" />
     <Button
-        android:id="@+id/btn_predict"
+        android:id="@+id/btnPredict"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_standard_top_margin"
-        android:text="@string/btn_lbl_predict" />
+        android:text="@string/btn_lbl_valid_predict" />
 
     <TextView
         android:id="@+id/x_val"

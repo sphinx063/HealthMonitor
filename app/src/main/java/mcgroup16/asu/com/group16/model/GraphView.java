@@ -32,29 +32,24 @@ public class GraphView extends View {
             xValues = new float[0];
         else
             this.xValues = xValues;
-
         if (title == null)
             title = "";
         else
             this.title = title;
-
         if (horlabels == null)
             this.horlabels = new String[0];
         else
             this.horlabels = horlabels;
-
         if (verlabels == null)
             this.verlabels = new String[0];
         else
             this.verlabels = verlabels;
-
         this.type = type;
         paint = new Paint();
     }
 
-    public void setxValues(float[] newXValues) {
-        this.xValues = newXValues;
-
+    public void setxValues(float[] newValues) {
+        this.xValues = newValues;
     }
 
     @Override

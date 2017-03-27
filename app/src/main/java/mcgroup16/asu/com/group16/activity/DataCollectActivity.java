@@ -1,6 +1,7 @@
 package mcgroup16.asu.com.group16.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -40,17 +41,22 @@ import java.util.HashSet;
 import java.util.Map;
 
 import mcgroup16.asu.com.group16.R;
+import mcgroup16.asu.com.group16.model.Row;
 import mcgroup16.asu.com.group16.utility.DatabaseUtil;
 
 public class DataCollectActivity extends AppCompatActivity implements SensorEventListener {
 
+    private final String TAG = DataCollectActivity.this.getClass().getSimpleName();
     private SensorManager sensorManager = null;
     private Sensor accelerometer = null;
     private double[] sensorData = null;
     private ArrayList<Double> trainingArray;
     private int activityLabel;
-    private static final String RUN_OPTION = "Run";
-    private static final String WALK_OPTION = "Walk";
+    private static final String RADIO_RUN_OPTION = "Run";
+    private static final String RADIO_WALK_OPTION = "Walk";
+    private static final int LABEL_RUN = 1;
+    private static final int LABEL_WALK = 2;
+    private static final int LABEL_EAT = 3;
     private Button btnCollectData = null;
     private Button btnTrainModel = null;
     private Button btnCollectTest = null;
@@ -86,7 +92,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private String appDataModelPath;
     private String appDataTestPath;
     private String appDataPredictPath;
-
     //Temp Acceleration values
     private TextView xText = null;
     private TextView yText = null;
@@ -112,11 +117,11 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         initiateAccelerometer();
         //Test linear-acceleration
 
-//        DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
-//
-//        // DB handler instance initialization
-//        dbHelper = new DatabaseUtil(this, DB_NAME);
-//        dbHelper.createTable(TABLE_NAME);
+        DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
+
+        // DB handler instance initialization
+        dbHelper = new DatabaseUtil(this, DB_NAME);
+        dbHelper.createTable(TABLE_NAME);
 
         btnCollectData = (Button) findViewById(R.id.btn_collect_data);
         btnCollectData.setOnClickListener(new View.OnClickListener() {
@@ -139,15 +144,15 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 RadioButton radioButtonCollect = (RadioButton) findViewById(selectedId);
                 String collectOption = radioButtonCollect.getText().toString();
 
-                if (collectOption.equals(RUN_OPTION)) {
-                    activityLabel = 1;
-                } else if (collectOption.equals(WALK_OPTION)) {
-                    activityLabel = 2;
+                if (collectOption.equals(RADIO_RUN_OPTION)) {
+                    activityLabel = LABEL_RUN;
+                } else if (collectOption.equals(RADIO_WALK_OPTION)) {
+                    activityLabel = LABEL_WALK;
                 } else {
-                    activityLabel = 3;
+                    activityLabel = LABEL_EAT;
                 }
 
-                // initializing file handling operations prior to starting collecting data
+                // file handling operations prior to starting collecting data
                 FileWriter fw = null;
                 try {
                     File dataFile = new File(appDataPath, trainOrTestFile);
@@ -157,12 +162,12 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     fw = new FileWriter(dataFile.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Error:"+e, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Error:" + e, Toast.LENGTH_SHORT).show();
                 }
                 trainingArray = new ArrayList<Double>();
                 insertHandle = new Handler();
                 insertHandle.post(insertIntoTrainTestArray);
-
+                Toast.makeText(getApplicationContext(), "Data collection started", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -170,12 +175,8 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         btnTrainModel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try{
-                    svmTrain();
-                    Toast.makeText(getApplicationContext(), "Training completed", Toast.LENGTH_SHORT).show();
-                }catch (Exception e){
-                    Toast.makeText(getApplicationContext(), "Error while training model", Toast.LENGTH_SHORT).show();
-                }
+                svmTrain();
+                Toast.makeText(getApplicationContext(), "Training completed", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -201,10 +202,9 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     int selectedId = radioGroupCollectData.getCheckedRadioButtonId();
                     RadioButton radioButtonCollect = (RadioButton) findViewById(selectedId);
                     String collectOption = radioButtonCollect.getText().toString();
-
-                    if (collectOption.equals(RUN_OPTION)) {
+                    if (collectOption.equals(RADIO_RUN_OPTION)) {
                         actLabel = '1';
-                    } else if (collectOption.equals(WALK_OPTION)) {
+                    } else if (collectOption.equals(RADIO_WALK_OPTION)) {
                         actLabel = '2';
                     } else {
                         actLabel = '3';
@@ -223,20 +223,18 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     Toast.makeText(getApplicationContext(), "Data count for " + actLabel + " is: " + dataCount, Toast.LENGTH_SHORT).show();
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Error: " + e);
                 }
             }
         });
-        Button btnPredict = (Button) findViewById(R.id.btn_predict);
+
+        Button btnPredict = (Button) findViewById(R.id.btnPredict);
         btnPredict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-                    svmPredict();
-                    Toast.makeText(getApplicationContext(), "Prediction completed", Toast.LENGTH_SHORT).show();
-                }catch (Exception e){
-                    Toast.makeText(getApplicationContext(), "Error while predicting", Toast.LENGTH_SHORT).show();
-                }
+                Intent moveToPredictActivity = new Intent(getApplicationContext(), PredictActivity.class);
+                moveToPredictActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
+                startActivity(moveToPredictActivity);
             }
         });
     }
@@ -245,17 +243,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         @Override
         public void run() {
             if (trainingArray.size() < 150) {
-                /*BigDecimal[] bigDecimals = new BigDecimal[3];
-                bigDecimals[0] = new BigDecimal(sensorData[0]);
-                bigDecimals[1] = new BigDecimal(sensorData[1]);
-                bigDecimals[2] = new BigDecimal(sensorData[2]);
-                bigDecimals[0] = bigDecimals[0].setScale(5,BigDecimal.ROUND_HALF_UP);
-                bigDecimals[1] = bigDecimals[1].setScale(5,BigDecimal.ROUND_HALF_UP);
-                bigDecimals[2] = bigDecimals[2].setScale(5,BigDecimal.ROUND_HALF_UP);
-                trainingArray.add(bigDecimals[0].doubleValue());
-                trainingArray.add(bigDecimals[1].doubleValue());
-                trainingArray.add(bigDecimals[2].doubleValue());
-                insertHandle.postDelayed(this, 100);*/
                 trainingArray.add(sensorData[0]);
                 trainingArray.add(sensorData[1]);
                 trainingArray.add(sensorData[2]);
@@ -287,17 +274,17 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     bw.write(row);
                     bw.newLine();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Error: " + e);
                 } finally {
                     try {
                         bw.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "Error: " + e);
                     }
                 }
                 // adding row to database
-//                Row row = new Row(trainingArray, activityLabel);
-//                dbHelper.addRow(row, TABLE_NAME);
+                Row databaseRow = new Row(trainingArray, String.valueOf(activityLabel));
+                dbHelper.addRow(databaseRow, TABLE_NAME);
             }
         }
     };
@@ -310,15 +297,17 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
-    private double[] bigRoundOff(double[] sensorData){
-        double[] tempData = new double[sensorData.length-1];
-        for(int i=0;i<sensorData.length-1;i++){
+
+    private double[] bigRoundOff(double[] sensorData) {
+        double[] tempData = new double[sensorData.length - 1];
+        for (int i = 0; i < sensorData.length - 1; i++) {
             BigDecimal bigDecimal = new BigDecimal(sensorData[i]);
-            bigDecimal = bigDecimal.setScale(4,BigDecimal.ROUND_HALF_UP);
+            bigDecimal = bigDecimal.setScale(4, BigDecimal.ROUND_HALF_UP);
             tempData[i] = bigDecimal.doubleValue();
         }
         return tempData;
     }
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 
@@ -347,20 +336,22 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         super.onPause();
         sensorManager.unregisterListener(this, accelerometer);
     }
-    private void initDataPaths(){
-        storagePath = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+"/";
-        appDataPath = storagePath+"libsvm";
-        appDataTrainingPath = appDataPath+"/"+trainFileName;
-        appDataTestPath = appDataPath+"/"+testFileName;
-        appDataModelPath = appDataPath+"/"+modelFileName;
-        appDataPredictPath = appDataPath+"/"+predcitFileName;
+
+    private void initDataPaths() {
+        storagePath = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/";
+        appDataPath = storagePath + "libsvm";
+        appDataTrainingPath = appDataPath + "/" + trainFileName;
+        appDataTestPath = appDataPath + "/" + testFileName;
+        appDataModelPath = appDataPath + "/" + modelFileName;
+        appDataPredictPath = appDataPath + "/" + predcitFileName;
     }
 
     private void svmTrain() {
         String svmOptions = "-t 2 ";
         //jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
     }
-    private void svmPredict(){
+
+    private void svmPredict() {
         //jniSvmPredict(appDataTestPath+" "+appDataModelPath+" "+appDataPredictPath);
     }
 
@@ -370,7 +361,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             removeDirectory(folder);
         }
         boolean created = folder.mkdir();
-        int i=1;
+        int i = 1;
     }
 
     private void removeDirectory(File dir) {

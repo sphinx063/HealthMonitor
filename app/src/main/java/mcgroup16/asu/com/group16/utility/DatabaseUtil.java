@@ -19,8 +19,11 @@ import mcgroup16.asu.com.group16.model.Sample;
 
 public class DatabaseUtil extends SQLiteOpenHelper {
 
+    private final String TAG = DatabaseUtil.this.getClass().getSimpleName();
+
     private static final int DATABASE_VERSION = 1;
     private String TABLE_NAME = null;
+
     public DatabaseUtil(Context context, final String DATABASE_NAME) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -67,24 +70,23 @@ public class DatabaseUtil extends SQLiteOpenHelper {
     }
 
     /*Add 5 seconds of sensor data @10 Hz to the table*/
-    public void addRow(Row row, String TABLE_NAME){
+    public void addRow(Row row, String TABLE_NAME) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         ArrayList<Double> rowData = row.getData();
         String activity = row.getLabelActivity();
         char[] xyz = {'x', 'y', 'z'};
         int currentIndex = 0;
-        for(int i=0;i<rowData.size();i++) {
-            if(i!=0 && i%3==0){
+        for (int i = 0; i < rowData.size(); i++) {
+            if (i != 0 && i % 3 == 0) {
                 currentIndex++;
             }
-            values.put(xyz[i%3]+""+currentIndex,rowData.get(i));
-
+            values.put(xyz[i % 3] + "" + currentIndex, rowData.get(i));
         }
-        
-        values.put("ActivityLabel",activity);
-        db.insert(TABLE_NAME,null,values);
-        Log.i("DatabaseUtil","Added one row");
+
+        values.put("ActivityLabel", activity);
+        db.insert(TABLE_NAME, null, values);
+        Log.i(TAG, "Added one row");
         db.close();
     }
 
@@ -108,21 +110,24 @@ public class DatabaseUtil extends SQLiteOpenHelper {
     }
 
     /*Get all rows from the table*/
-    public List<Row> getRows(String TABLE_NAME){
-        String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY ROWID";
+    public List<Row> getRows(String TABLE_NAME, int limit) {
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE ActivityLabel = 1 " +
+                "OR ActivityLabel = 2 " +
+                "OR ActivityLabel = 3 " +
+                "ORDER BY ROWID LIMIT " + limit;
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query,null);
+        Cursor cursor = db.rawQuery(query, null);
         List<Row> allRows = new ArrayList<>();
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             List<Double> values = new ArrayList<>();
-            for(int i=0;i<150;i++){
-
+            for (int i = 0; i < 150; i++) {
                 values.add(cursor.getDouble(i));
             }
-            allRows.add(new Row((ArrayList<Double>) values,cursor.getString(150)));
+            allRows.add(new Row((ArrayList<Double>) values, cursor.getString(150)));
         }
         cursor.close();
         db.close();
+        Log.i(TAG, "Getting rows from DB");
         return allRows;
     }
 

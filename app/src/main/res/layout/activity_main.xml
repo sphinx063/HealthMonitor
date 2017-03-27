@@ -11,130 +11,62 @@
     android:paddingTop="@dimen/activity_vertical_margin">
 
     <TextView
-        android:id="@+id/patientInfoLabel"
+        android:id="@+id/mainHeading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_standard_top_margin"
         android:layout_marginTop="@dimen/activity_standard_top_margin"
-        android:text="@string/lbl_patient_info"
+        android:gravity="center"
+        android:text="@string/lbl_dashboard_page"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/activity_heading_size" />
 
-    <LinearLayout
-        android:id="@+id/patientIdLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/patientIdLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/lbl_patient_id"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size" />
-
-        <EditText
-            android:id="@+id/patientIdText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:ems="10"
-            android:inputType="textPersonName" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/patientNameLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/patientNameLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/lbl_patient_name"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size" />
-
-        <EditText
-            android:id="@+id/patientNameText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:ems="10"
-            android:inputType="textPersonName" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/patientAgeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/patientAgeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/lbl_patient_age"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size" />
-
-        <EditText
-            android:id="@+id/patientAgeText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:ems="10"
-            android:inputType="textPersonName" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/patientSexLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_standard_top_margin">
-
-        <TextView
-            android:id="@+id/patientSexLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/lbl_patient_sex"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size" />
-
-        <RadioGroup
-            android:id="@+id/radio_sex"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radio_male"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/rdb_lbl_male" />
-
-            <RadioButton
-                android:id="@+id/radio_female"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/rdb_lbl_female" />
-
-        </RadioGroup>
-
-    </LinearLayout>
-
     <Button
-        android:id="@+id/btn_next"
+        android:id="@+id/btnCreateData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_standard_top_margin"
-        android:text="@string/btn_lbl_next" />
+        android:text="@string/btn_lbl_create_data" />
+
+    <TextView
+        android:id="@+id/lblCreateData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_standard_top_margin"
+        android:gravity="center"
+        android:text="@string/lbl_create_data"
+        android:textColor="@color/colorPrimaryDark" />
 
     <Button
-        android:id="@+id/btn_clear"
+        android:id="@+id/btnPredict"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_standard_top_margin"
-        android:text="@string/btn_lbl_clear" />
+        android:text="@string/btn_lbl_valid_predict" />
 
+    <TextView
+        android:id="@+id/lblPredictData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_standard_top_margin"
+        android:gravity="center"
+        android:text="@string/lbl_predict_data"
+        android:textColor="@color/colorPrimaryDark" />
+
+    <Button
+        android:id="@+id/btn_graph"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_standard_top_margin"
+        android:text="@string/btn_lbl_plot_graph" />
+
+    <TextView
+        android:id="@+id/lblPlotGraph"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_standard_top_margin"
+        android:gravity="center"
+        android:text="@string/lbl_plot_graph"
+        android:textColor="@color/colorPrimaryDark" />
 
 </LinearLayout>
