@@ -22,7 +22,7 @@
         android:textSize="@dimen/activity_heading_size" />
 
     <Button
-        android:id="@+id/btn_create_data"
+        android:id="@+id/btnCreateData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_standard_top_margin"
@@ -38,7 +38,7 @@
         android:textColor="@color/colorPrimaryDark" />
 
     <Button
-        android:id="@+id/btn_predict"
+        android:id="@+id/btnPredict"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_standard_top_margin"

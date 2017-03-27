@@ -12,6 +12,11 @@
     <string name="lbl_create_data">Choose this option if you want to create new dataset</string>
     <string name="lbl_predict_data">Choose this if you want to predict on existing dataset</string>
     <string name="lbl_plot_graph">Choose this if you want to plot graph using existing dataset</string>
+    <string name="lbl_validate">Test Accuracy:</string>
+    <string name="lbl_svm_parameter">SVM Parameters:-</string>
+    <string name="lbl_svm_kernel_type">Kernel Type:</string>
+    <string name="lbl_svm_gamma">Gamma:</string>
+    <string name="lbl_svm_total_sv">Support Vector Count:</string>
 
     <string name="btn_lbl_next">Next</string>
     <string name="btn_lbl_clear">Clear</string>

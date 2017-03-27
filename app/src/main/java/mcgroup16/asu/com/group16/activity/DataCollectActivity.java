@@ -209,7 +209,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             }
         });
 
-        Button btnPredict = (Button) findViewById(R.id.btn_predict);
+        Button btnPredict = (Button) findViewById(R.id.btnPredict);
         btnPredict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

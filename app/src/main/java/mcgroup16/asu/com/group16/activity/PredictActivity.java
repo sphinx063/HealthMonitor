@@ -82,7 +82,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         createFolders();
         initiateAccelerometer();
 
-        final Button btnCollect = (Button) findViewById(R.id.btn_create_data);
+        final Button btnCollect = (Button) findViewById(R.id.btnCreateData);
         btnCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -108,7 +108,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             }
         });
 
-        Button btnPredict = (Button) findViewById(R.id.btn_predict);
+        Button btnPredict = (Button) findViewById(R.id.btnPredict);
         btnPredict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

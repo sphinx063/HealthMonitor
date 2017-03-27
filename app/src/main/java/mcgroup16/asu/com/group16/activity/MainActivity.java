@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseUtil(this, DB_NAME);
 
-        createDataButton = (Button) findViewById(R.id.btn_create_data);
+        createDataButton = (Button) findViewById(R.id.btnCreateData);
         createDataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        predictButton = (Button) findViewById(R.id.btn_predict);
+        predictButton = (Button) findViewById(R.id.btnPredict);
         predictButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

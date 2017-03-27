@@ -110,8 +110,11 @@ public class DatabaseUtil extends SQLiteOpenHelper {
     }
 
     /*Get all rows from the table*/
-    public List<Row> getRows(String TABLE_NAME) {
-        String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY ROWID";
+    public List<Row> getRows(String TABLE_NAME, int limit) {
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE ActivityLabel = 1 " +
+                "OR ActivityLabel = 2 " +
+                "OR ActivityLabel = 3 " +
+                "ORDER BY ROWID LIMIT " + limit;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         List<Row> allRows = new ArrayList<>();
