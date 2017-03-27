@@ -1,4 +1,4 @@
-package mcgroup16.asu.com.mc_group16.activity;
+package mcgroup16.asu.com.group16.activity;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -17,11 +17,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import mcgroup16.asu.com.mc_group16.R;
-import mcgroup16.asu.com.mc_group16.model.GraphView;
-import mcgroup16.asu.com.mc_group16.model.Sample;
-import mcgroup16.asu.com.mc_group16.task.UploadDatabaseTask;
-import mcgroup16.asu.com.mc_group16.utility.DatabaseUtil;
+import mcgroup16.asu.com.group16.R;
+import mcgroup16.asu.com.group16.model.GraphView;
+import mcgroup16.asu.com.group16.model.Sample;
+import mcgroup16.asu.com.group16.task.UploadDatabaseTask;
+import mcgroup16.asu.com.group16.utility.DatabaseUtil;
 
 
 public class GraphActivity extends AppCompatActivity implements SensorEventListener {

@@ -1,4 +1,4 @@
-package mcgroup16.asu.com.mc_group16.utility;
+package mcgroup16.asu.com.group16.utility;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import mcgroup16.asu.com.mc_group16.model.Sample;
+import mcgroup16.asu.com.group16.model.Sample;
 
 /**
  * Created by mlenka on 2/21/2017.

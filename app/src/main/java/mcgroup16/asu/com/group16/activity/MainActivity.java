@@ -1,4 +1,4 @@
-package mcgroup16.asu.com.mc_group16.activity;
+package mcgroup16.asu.com.group16.activity;
 
 import android.content.Intent;
 import android.database.SQLException;
@@ -11,8 +11,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import mcgroup16.asu.com.mc_group16.R;
-import mcgroup16.asu.com.mc_group16.utility.DatabaseUtil;
+import mcgroup16.asu.com.group16.R;
+import mcgroup16.asu.com.group16.utility.DatabaseUtil;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package mcgroup16.asu.com.mc_group16.model;
+package mcgroup16.asu.com.group16.model;
 
 /**
  * Created by rinku on 3/3/2017.
