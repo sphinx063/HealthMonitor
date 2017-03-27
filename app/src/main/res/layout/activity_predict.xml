@@ -64,7 +64,7 @@
         tools:layout_constraintLeft_creator="1" />
 
     <Button
-        android:id="@+id/btn_collect"
+        android:id="@+id/btn_create_data"
         android:layout_width="292dp"
         android:layout_height="48dp"
         android:layout_marginBottom="80dp"

@@ -10,58 +10,6 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-    <RelativeLayout
-        android:id="@+id/patientInfoLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_standard_bottom_margin">
-
-        <TextView
-            android:id="@+id/lblPatientName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
-            android:text="@string/lbl_patient_name"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtPatientName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="45dp"
-            android:layout_toRightOf="@id/lblPatientName"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/lblPatientAge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_toRightOf="@id/txtPatientName"
-            android:text="@string/lbl_patient_age"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtPatientAge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_toRightOf="@id/lblPatientAge"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="@dimen/activity_label_text_size"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
-
     <LinearLayout
         android:id="@+id/develop_graph"
         android:layout_width="match_parent"
@@ -80,18 +28,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/btn_lbl_stop" />
-
-    <Button
-        android:id="@+id/btn_upload"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_lbl_upload" />
-
-    <!--<Button-->
-        <!--android:id="@+id/btn_download"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="@string/btn_lbl_download" />-->
-
 
 </LinearLayout>

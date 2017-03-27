@@ -106,9 +106,9 @@ svm-toy:
 	Note that "load" and "save" consider dense data format both in
 	classification and the regression cases. For classification,
 	each data point has one label (the color) that must be 1, 2,
-	or 3 and two attributes (x-axis and y-axis values) in
+	or 3 and two attributes (x-axis and y-axis xValues) in
 	[0,1). For regression, each data point has one target value
-	(y-axis) and one attribute (x-axis values) in [0, 1).
+	(y-axis) and one attribute (x-axis xValues) in [0, 1).
 
 	Type `make' in respective directories to build them.
 
@@ -138,7 +138,7 @@ options:
 	1 -- polynomial: (gamma*u'*v + coef0)^degree
 	2 -- radial basis function: exp(-gamma*|u-v|^2)
 	3 -- sigmoid: tanh(gamma*u'*v + coef0)
-	4 -- precomputed kernel (kernel values in training_set_file)
+	4 -- precomputed kernel (kernel xValues in training_set_file)
 -d degree : set degree in kernel function (default 3)
 -g gamma : set gamma in kernel function (default 1/num_features)
 -r coef0 : set coef0 in kernel function (default 0)
@@ -236,7 +236,7 @@ probability estimates
 Precomputed Kernels 
 ===================
 
-Users may precompute kernel values and input them as training and
+Users may precompute kernel xValues and input them as training and
 testing files.  Then libsvm does not need the original
 training/testing sets.
 
@@ -256,7 +256,7 @@ New testing instance for any x:
 That is, in the training file the first column must be the "ID" of
 xi. In testing, ? can be any value.
 
-All kernel values including ZEROs must be explicitly provided.  Any
+All kernel xValues including ZEROs must be explicitly provided.  Any
 permutation or random subsets of the training/testing files are also
 valid (see examples below).
 
@@ -326,7 +326,7 @@ to classify new data.
 	};
  
     where `l' is the number of training data, and `y' is an array containing
-    their target values. (integers in classification, real numbers in
+    their target xValues. (integers in classification, real numbers in
     regression) `x' is an array of pointers, each of which points to a sparse
     representation (array of svm_node) of one training vector. 
 
@@ -400,7 +400,7 @@ to classify new data.
     POLY:	(gamma*u'*v + coef0)^degree
     RBF:	exp(-gamma*|u-v|^2)
     SIGMOID:	tanh(gamma*u'*v + coef0)
-    PRECOMPUTED: kernel values in training_set_file
+    PRECOMPUTED: kernel xValues in training_set_file
 
     cache_size is the size of the kernel cache, specified in megabytes.
     C is the cost of constraints violation. 
@@ -432,7 +432,7 @@ to classify new data.
 
     struct svm_model stores the model obtained from the training procedure.
     It is not recommended to directly access entries in this structure.
-    Programmers should use the interface functions to get the values.
+    Programmers should use the interface functions to get the xValues.
 
 	struct svm_model
 	{
@@ -444,7 +444,7 @@ to classify new data.
 		double *rho;		/* constants in decision functions (rho[k*(k-1)/2]) */
 		double *probA;		/* pairwise probability information */
 		double *probB;
-		int *sv_indices;        /* sv_indices[0,...,nSV-1] are values in [1,...,num_traning_data] to indicate SVs in the training set */
+		int *sv_indices;        /* sv_indices[0,...,nSV-1] are xValues in [1,...,num_traning_data] to indicate SVs in the training set */
 
 		/* for classification only */
 
@@ -486,15 +486,15 @@ to classify new data.
         |4|4|4|                    |
         +-+-+-+--------------------+
 
-    See svm_train() for an example of assigning values to sv_coef.
+    See svm_train() for an example of assigning xValues to sv_coef.
 
     rho is the bias term (-b). probA and probB are parameters used in
     probability outputs. If there are k classes, there are k*(k-1)/2
-    binary problems as well as rho, probA, and probB values. They are
+    binary problems as well as rho, probA, and probB xValues. They are
     aligned in the order of binary problems:
     1 vs 2, 1 vs 3, ..., 1 vs k, 2 vs 3, ..., 2 vs k, ..., k-1 vs k.
 
-    sv_indices[0,...,nSV-1] are values in [1,...,num_traning_data] to
+    sv_indices[0,...,nSV-1] are xValues in [1,...,num_traning_data] to
     indicate support vectors in the training set.
 
     label contains labels in the training data.
@@ -532,7 +532,7 @@ to classify new data.
 
 - Function: int svm_get_svm_type(const struct svm_model *model);
 
-    This function gives svm_type of the model. Possible values of
+    This function gives svm_type of the model. Possible xValues of
     svm_type are defined in svm.h.
 
 - Function: int svm_get_nr_class(const svm_model *model);
@@ -569,12 +569,12 @@ to classify new data.
 - Function: double svm_predict_values(const svm_model *model, 
 				    const svm_node *x, double* dec_values)
 
-    This function gives decision values on a test vector x given a
+    This function gives decision xValues on a test vector x given a
     model, and return the predicted label (classification) or
     the function value (regression).
 
     For a classification model with nr_class classes, this function
-    gives nr_class*(nr_class-1)/2 decision values in the array
+    gives nr_class*(nr_class-1)/2 decision xValues in the array
     dec_values, where nr_class can be obtained from the function
     svm_get_nr_class. The order is label[0] vs. label[1], ...,
     label[0] vs. label[nr_class-1], label[1] vs. label[2], ...,
