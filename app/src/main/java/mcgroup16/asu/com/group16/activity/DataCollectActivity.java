@@ -102,7 +102,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     }
 
     //private native void jniSvmTrain(String cmd);
-    //private native void jniSvmPredict(String cmd);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +112,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         zText = (TextView) findViewById(R.id.z_val);
         initDataPaths();
         createFolders();
-        copyAssets(0);
         initiateAccelerometer();
         //Test linear-acceleration
 
@@ -234,6 +232,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             public void onClick(View v) {
                 Intent moveToPredictActivity = new Intent(getApplicationContext(), PredictActivity.class);
                 moveToPredictActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
+                moveToPredictActivity.putExtra("EXTRA_FROM_ACTIVITY", "Collect");
                 startActivity(moveToPredictActivity);
             }
         });
@@ -351,10 +350,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         //jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
     }
 
-    private void svmPredict() {
-        //jniSvmPredict(appDataTestPath+" "+appDataModelPath+" "+appDataPredictPath);
-    }
-
     private void createFolders() {
         File folder = new File(appDataPath);
         if (folder.exists()) {
@@ -376,66 +371,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         } else {
             dir.delete();
         }
-    }
-    private void copyAssets(int copyAll){
-        AssetManager assetManager = getAssets();
-        if(copyAll == 0){
-            duplicateAsset(assetManager,appDataTrainingPath,trainFileName);
-            duplicateAsset(assetManager,appDataTestPath,testFileName);
-        }
-        if(copyAll == 1){
-            duplicateAsset(assetManager,appDataTrainingPath,trainFileName);
-            duplicateAsset(assetManager,appDataModelPath,modelFileName);
-            duplicateAsset(assetManager,appDataTestPath,testFileName);
-        }
-    }
-    private void duplicateAsset(AssetManager assetManager,String fileTo,String fileFrom){
-        InputStream instream = null;
-        OutputStream outstream = null;
-        try {
-            instream = assetManager.open(fileFrom);
-            outstream = new FileOutputStream(new File(fileTo),false);
-            byte[] buffer = new byte[1024];
-            int length;
-            while((length = instream.read(buffer))>0){
-                outstream.write(buffer,0,length);
-            }
-            instream.close();
-            outstream.flush();
-            outstream.close();
-            Log.e("AssetDuplicate","Copied file "+fileFrom+" to "+fileTo);
-
-        } catch (IOException e) {
-            Log.e("AssetDuplicate","Could not copy asset file "+fileFrom+" to "+fileTo);
-            e.printStackTrace();
-        }
-    }
-    private Map<String,String> getModelParameters(){
-        File model = new File(appDataModelPath);
-        HashMap<String,String> modelParameters = new HashMap<>();
-        String[] requiredParamters = {"svm_type","kernel_type","gamma","total_sv"};
-        HashSet<String> parameterSet = new HashSet<>(Arrays.asList(requiredParamters));
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(model)));
-            String line = null;
-            while((line=bufferedReader.readLine())!=null){
-                if(line.equals("SV")){
-                    break;
-                }
-                String[] tokens = line.split("\\s+");
-                String parameter = tokens[0];
-                String value = tokens[1];
-                if(parameterSet.contains(parameter))
-                    modelParameters.put(parameter,value);
-
-            }
-            bufferedReader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return modelParameters;
     }
 
 }

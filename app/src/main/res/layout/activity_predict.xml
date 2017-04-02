@@ -116,13 +116,11 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="13dp"
         android:layout_marginStart="13dp"
-        android:layout_marginTop="3dp"
         android:text="test"
         android:textSize="16sp"
         app:layout_constraintLeft_toRightOf="@+id/lblValidate"
-        app:layout_constraintTop_toTopOf="@+id/lblValidate"
         tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintTop_creator="1" />
+        tools:layout_editor_absoluteY="90dp" />
 
     <TextView
         android:id="@+id/lblHeading1"
@@ -196,8 +194,7 @@
         android:text="test kernel"
         app:layout_constraintBaseline_toBaselineOf="@+id/lblKernelType"
         app:layout_constraintLeft_toRightOf="@+id/lblKernelType"
-        tools:layout_constraintBaseline_creator="1"
-        tools:layout_constraintRight_creator="1" />
+        tools:layout_constraintBaseline_creator="1" />
 
     <TextView
         android:id="@+id/txtSvcount"

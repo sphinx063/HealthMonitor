@@ -8,7 +8,6 @@ import android.widget.Button;
 
 import mcgroup16.asu.com.group16.R;
 import mcgroup16.asu.com.group16.utility.DatabaseUtil;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String DB_NAME = "McGroup16";
@@ -16,14 +15,11 @@ public class MainActivity extends AppCompatActivity {
     private Button predictButton = null;
     private Button createDataButton = null;
     private Button graphButton = null;
-
     DatabaseUtil dbHelper = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // TODO: remove it before final submission
         getApplicationContext().deleteDatabase(DB_NAME);
 
@@ -49,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 // starting predict activity
                 Intent moveToPredictActivity = new Intent(getApplicationContext(), PredictActivity.class);
                 moveToPredictActivity.putExtra("EXTRA_DB_NAME", DB_NAME);
+                moveToPredictActivity.putExtra("EXTRA_FROM_ACTIVITY", "Main");
                 startActivity(moveToPredictActivity);
             }
         });
