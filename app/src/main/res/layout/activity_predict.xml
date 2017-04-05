@@ -114,13 +114,12 @@
         android:id="@+id/txtValidate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="13dp"
-        android:layout_marginStart="13dp"
         android:text="test"
         android:textSize="16sp"
+        android:layout_marginStart="16dp"
         app:layout_constraintLeft_toRightOf="@+id/lblValidate"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_editor_absoluteY="90dp" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/lblValidate"
+        tools:layout_constraintBaseline_creator="1" />
 
     <TextView
         android:id="@+id/lblHeading1"

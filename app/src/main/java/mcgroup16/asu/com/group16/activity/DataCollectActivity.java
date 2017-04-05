@@ -101,7 +101,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         System.loadLibrary("jnilibsvm");
     }
 
-    //private native void jniSvmTrain(String cmd);
+    private native void jniSvmTrain(String cmd);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +112,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         zText = (TextView) findViewById(R.id.z_val);
         initDataPaths();
         createFolders();
+        //copyAssets(1);
         initiateAccelerometer();
         //Test linear-acceleration
 
@@ -347,7 +348,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
     private void svmTrain() {
         String svmOptions = "-t 2 ";
-        //jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
+        jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
     }
 
     private void createFolders() {
@@ -370,6 +371,40 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             dir.delete();
         } else {
             dir.delete();
+        }
+    }
+    private void copyAssets(int copyAll) {
+        AssetManager assetManager = getAssets();
+        if (copyAll == 0) {
+            duplicateAsset(assetManager, appDataTrainingPath, trainFileName);
+            duplicateAsset(assetManager, appDataTestPath, testFileName);
+        }
+        if (copyAll == 1) {
+            duplicateAsset(assetManager, appDataTrainingPath, trainFileName);
+            duplicateAsset(assetManager, appDataModelPath, modelFileName);
+            duplicateAsset(assetManager, appDataTestPath, testFileName);
+        }
+    }
+
+    private void duplicateAsset(AssetManager assetManager, String fileTo, String fileFrom) {
+        InputStream instream = null;
+        OutputStream outstream = null;
+        try {
+            instream = assetManager.open(fileFrom);
+            outstream = new FileOutputStream(new File(fileTo), false);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = instream.read(buffer)) > 0) {
+                outstream.write(buffer, 0, length);
+            }
+            instream.close();
+            outstream.flush();
+            outstream.close();
+            Log.e("AssetDuplicate", "Copied file " + fileFrom + " to " + fileTo);
+
+        } catch (IOException e) {
+            Log.e("AssetDuplicate", "Could not copy asset file " + fileFrom + " to " + fileTo);
+            e.printStackTrace();
         }
     }
 

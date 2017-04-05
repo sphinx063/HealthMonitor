@@ -41,7 +41,7 @@ extern "C" void Java_mcgroup16_asu_com_group16_activity_DataCollectActivity_jniS
 }
 
 // helper function to be called in Java for making svm-predict
-extern "C" void Java_mcgroup16_asu_com_group16_activity_DataCollectActivity_jniSvmPredict(JNIEnv *env, jobject obj, jstring cmdIn){
+extern "C" void Java_mcgroup16_asu_com_group16_activity_PredictActivity_jniSvmPredict(JNIEnv *env, jobject obj, jstring cmdIn){
 	const char *cmd = env->GetStringUTFChars(cmdIn, 0);
 	debug("jniSvmPredict cmd = %s", cmd);
 

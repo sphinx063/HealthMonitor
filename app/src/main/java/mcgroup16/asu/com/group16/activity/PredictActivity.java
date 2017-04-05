@@ -44,12 +44,15 @@ enum SVM {
     SV_COUNT("total_sv"),
     GAMMA("gamma");
     private final String parameter;
+
     private SVM(String s) {
         parameter = s;
     }
+
     public boolean equals(String otherParameter) {
         return parameter.equals(otherParameter);
     }
+
     public String toString() {
         return this.parameter;
     }
@@ -101,17 +104,21 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         System.loadLibrary("jnilibsvm");
     }
 
-   // private native void jniSvmPredict(String cmd);
+    private native void jniSvmPredict(String cmd);
 
     private void svmPredict() {
-       // jniSvmPredict(appDataTestPath + " " + appDataModelPath + " " + appDataPredictPath);
+        Log.e("Model", appDataModelPath);
+        Log.e("Predict", appDataPredictPath);
+        Log.e("Test", appDataTestPath);
+        jniSvmPredict(appDataTestPath + " " + appDataModelPath + " " + appDataPredictPath);
+        Log.e("SVMPredict", ":Completed");
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_predict);
-        accuracyText = (TextView)findViewById(R.id.txtValidate);
+        accuracyText = (TextView) findViewById(R.id.txtValidate);
         Intent intent = getIntent();
         String fromActivity = intent.getStringExtra("EXTRA_FROM_ACTIVITY");
         initDataPaths();
@@ -120,10 +127,12 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             createFolders();
             copyAssets(1);
             accuracyText.setText(String.valueOf(computeAccuracy()));
+            Log.i("Accuracy", String.valueOf(computeAccuracy()));
         }
-        Map<String, String> map = (HashMap<String, String>) getModelParameters();
+        HashMap<String, String> map = (HashMap<String, String>) getModelParameters();
         populateSVMParameters(map);
         initiateAccelerometer();
+
         final Button btnCollect = (Button) findViewById(R.id.btnCreateData);
         btnCollect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,11 +143,11 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                 FileWriter fw = null;
                 try {
 
-                    File sampleDataFile = new File(appDataPath, appDataTestPath);
+                    File sampleDataFile = new File(appDataTestPath);
                     if (!sampleDataFile.exists()) {
                         sampleDataFile.createNewFile();
                     }
-                    fw = new FileWriter(sampleDataFile.getAbsoluteFile(), true);
+                    fw = new FileWriter(sampleDataFile.getAbsoluteFile(), false);
                     bw = new BufferedWriter(fw);
                 } catch (IOException e) {
                     Toast.makeText(getApplicationContext(), "Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -155,28 +164,34 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             @Override
             public void onClick(View view) {
                 svmPredict();
+                //accuracyText.setText(String.valueOf(computeAccuracy()));
                 Log.i(TAG, "SVM predict completed");
 
                 try {
-                    File outputFile = new File(appDataPath, predcitFileName);
+                    File outputFile = new File(appDataPredictPath);
                     br = new BufferedReader(new FileReader(outputFile));
                     String readLine = "";
+                    int label = -10;
                     while ((readLine = br.readLine()) != null) {
-                        int label = (int) readLine.charAt(0);
-                        TextView txtPredict = (TextView) findViewById(R.id.txtPredict);
-                        switch (label) {
-                            case LABEL_RUN:
-                                txtPredict.setText(ACTION_RUN);
-                                break;
-                            case LABEL_WALK:
-                                txtPredict.setText(ACTION_WALK);
-                                break;
-                            case LABEL_EAT:
-                                txtPredict.setText(ACTION_EAT);
-                                break;
-                        }
+                        label = Integer.parseInt("" + readLine.charAt(0));
+                        break;
                     }
-                } catch (IOException e) {
+                    TextView txtPredict = (TextView) findViewById(R.id.txtPredict);
+                    switch (label) {
+                        case LABEL_RUN:
+                            txtPredict.setText(ACTION_RUN);
+                            break;
+                        case LABEL_WALK:
+                            txtPredict.setText(ACTION_WALK);
+                            break;
+                        case LABEL_EAT:
+                            txtPredict.setText(ACTION_EAT);
+                            break;
+                        default:
+                            Toast.makeText(getApplicationContext(), "default switch", Toast.LENGTH_LONG);
+                    }
+
+                } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "Error: " + e);
                 }
@@ -195,11 +210,26 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                 trainingArray.add(sensorData[2]);
                 insertHandle.postDelayed(this, 100);
 
+                row = String.valueOf(1);
             } else if (trainingArray.size() == 150) {
                 insertHandle.removeCallbacksAndMessages(null);
+                double[] averageByAxes = new double[3];
+                averageByAxes[0] = 0.0;
+                averageByAxes[1] = 0.0;
+                averageByAxes[2] = 0.0;
                 for (int i = 0; i < 150; i++) {
-                    row += " " + (i + 1) + ":" + trainingArray.get(i);
+                    if(i%3 == 0)
+                        averageByAxes[0] += trainingArray.get(i);
+                    if(i%3 == 1)
+                        averageByAxes[1] += trainingArray.get(i);
+                    if(i%3 == 2)
+                        averageByAxes[2] += trainingArray.get(i);
+                    //row += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
+                averageByAxes[0]/=50;
+                averageByAxes[1]/=50;
+                averageByAxes[2]/=50;
+                row += " " + (1) + ":" + averageByAxes[0]+" "+(2) + ":" + averageByAxes[1]+" "+(3) + ":" + averageByAxes[2];
                 try {
                     bw.write(row);
                     bw.newLine();
@@ -295,6 +325,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             duplicateAsset(assetManager, appDataTrainingPath, trainFileName);
             duplicateAsset(assetManager, appDataModelPath, modelFileName);
             duplicateAsset(assetManager, appDataTestPath, testFileName);
+            duplicateAsset(assetManager, appDataPredictPath, predcitFileName);
         }
     }
 
@@ -309,6 +340,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             while ((length = instream.read(buffer)) > 0) {
                 outstream.write(buffer, 0, length);
             }
+            //outstream.write(10);
             instream.close();
             outstream.flush();
             outstream.close();
@@ -348,12 +380,13 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         gammaText = (TextView) findViewById(R.id.txtGamma);
         kernelTypeText = (TextView) findViewById(R.id.txtKernel);
         supportVectorText = (TextView) findViewById(R.id.txtSvcount);
-        gammaText.setText(parameterMap.get(SVM.GAMMA));
-        kernelTypeText.setText(parameterMap.get(SVM.KERNEL_TYPE));
-        supportVectorText.setText(parameterMap.get(SVM.SV_COUNT));
+        gammaText.setText(parameterMap.get(SVM.GAMMA.toString()));
+        kernelTypeText.setText(parameterMap.get(SVM.KERNEL_TYPE.toString()));
+        supportVectorText.setText(parameterMap.get(SVM.SV_COUNT.toString()));
 
     }
-    private double computeAccuracy(){
+
+    private double computeAccuracy() {
         File predictFile = new File(appDataPredictPath);
         File testFile = new File(appDataTestPath);
         int rowNumber = 0;
@@ -361,15 +394,15 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         ArrayList<String> testLabels = new ArrayList<>();
         try {
             BufferedReader brPredict = new BufferedReader(new InputStreamReader(new FileInputStream(predictFile)));
-            BufferedReader brTest = new BufferedReader(new InputStreamReader(new FileInputStream(predictFile)));
+            BufferedReader brTest = new BufferedReader(new InputStreamReader(new FileInputStream(testFile)));
             String line = null;
-            while ((line = brTest.readLine())!=null){
+            while ((line = brTest.readLine()) != null) {
                 String[] columns = line.trim().split("\\s+");
                 testLabels.add(columns[0]);
             }
-            while((line = brPredict.readLine())!= null){
+            while ((line = brPredict.readLine()) != null) {
                 line = line.trim();
-                if(line.equals(testLabels.get(rowNumber))){
+                if (line.equals(testLabels.get(rowNumber))) {
                     totalCorrectPrediction++;
                 }
                 rowNumber++;
@@ -379,7 +412,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return (totalCorrectPrediction/(rowNumber+1))*100;
+        return (totalCorrectPrediction * 1.0 / (rowNumber)) * 100;
     }
 
 }
