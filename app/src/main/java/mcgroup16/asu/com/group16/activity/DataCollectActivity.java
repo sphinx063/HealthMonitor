@@ -7,38 +7,28 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 import mcgroup16.asu.com.group16.R;
 import mcgroup16.asu.com.group16.model.Row;
@@ -47,10 +37,16 @@ import mcgroup16.asu.com.group16.utility.DatabaseUtil;
 public class DataCollectActivity extends AppCompatActivity implements SensorEventListener {
 
     private final String TAG = DataCollectActivity.this.getClass().getSimpleName();
+
+    // accelerometer related declarations
     private SensorManager sensorManager = null;
     private Sensor accelerometer = null;
     private double[] sensorData = null;
     private ArrayList<Double> trainingArray;
+    private static final int SAMPLING_FREQUENCY = 100;
+    private static final int SAMPLE_COLUMN_COUNT = 150;
+
+    // general declarations
     private int activityLabel;
     private static final String RADIO_RUN_OPTION = "Run";
     private static final String RADIO_WALK_OPTION = "Walk";
@@ -59,13 +55,11 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private static final int LABEL_EAT = 3;
     private Button btnCollectData = null;
     private Button btnTrainModel = null;
-    private Button btnCollectTest = null;
     private Button btnCheckData = null;
-    private Button btnCheckTest = null;
-    private String trainOrTestFile = null;
+    private Button btnPredict = null;
+    private static final int DATA_THRESHOLD = 30;
 
     // handler related declarations
-    private static final int HAS_FINISHED = 1;
     private Handler insertHandle = null;
 
     // Database utility related declarations
@@ -74,12 +68,10 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private DatabaseUtil dbHelper = null;
 
     // file handling declarations
-    FileOutputStream outputStream = null;
     BufferedWriter bw = null;
     BufferedReader br = null;
-    File trainingFile = null;
     String row = null;
-    FileInputStream fin = null;
+    private String trainOrTestFile = null;
     String trainFileName = "train";
     String testFileName = "test";
     String modelFileName = "model";
@@ -92,10 +84,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private String appDataModelPath;
     private String appDataTestPath;
     private String appDataPredictPath;
-    //Temp Acceleration values
-    private TextView xText = null;
-    private TextView yText = null;
-    private TextView zText = null;
+
     //Native methods
     static {
         System.loadLibrary("jnilibsvm");
@@ -107,14 +96,17 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_collect);
-        xText = (TextView) findViewById(R.id.x_val);
-        yText = (TextView) findViewById(R.id.y_val);
-        zText = (TextView) findViewById(R.id.z_val);
+
+        // performing initial operations
         initDataPaths();
         createFolders();
-        //copyAssets(1);
-        initiateAccelerometer();
-        //Test linear-acceleration
+        startAccelerometerSensor();
+
+        btnTrainModel = (Button) findViewById(R.id.btn_train);
+        btnTrainModel.setEnabled(false);
+
+        btnPredict = (Button) findViewById(R.id.btnPredict);
+        btnPredict.setEnabled(false);
 
         DB_NAME = getIntent().getStringExtra("EXTRA_DB_NAME");
 
@@ -132,7 +124,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 RadioButton radioButtonChoice = (RadioButton) findViewById(choice);
                 String choiceOption = radioButtonChoice.getText().toString();
 
-                if (choiceOption.equals("Train")) {
+                if (choiceOption.equals(trainFileName)) {
                     trainOrTestFile = trainFileName;
                 } else {
                     trainOrTestFile = testFileName;
@@ -170,15 +162,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             }
         });
 
-        btnTrainModel = (Button) findViewById(R.id.btn_train);
-        btnTrainModel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                svmTrain();
-                Toast.makeText(getApplicationContext(), "Training completed", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         btnCheckData = (Button) findViewById(R.id.btn_check_data);
         btnCheckData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,7 +173,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     RadioButton radioButtonChoice = (RadioButton) findViewById(choice);
                     String choiceOption = radioButtonChoice.getText().toString();
 
-                    if (choiceOption.equals("Train")) {
+                    if (choiceOption.equals(trainFileName)) {
                         trainOrTestFile = trainFileName;
                     } else {
                         trainOrTestFile = testFileName;
@@ -221,13 +204,25 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     }
                     Toast.makeText(getApplicationContext(), "Data count for " + actLabel + " is: " + dataCount, Toast.LENGTH_SHORT).show();
 
+                    if (dataCount == DATA_THRESHOLD) {
+                        btnTrainModel.setEnabled(true);
+                        btnPredict.setEnabled(true);
+                    }
+
                 } catch (IOException e) {
                     Log.e(TAG, "Error: " + e);
                 }
             }
         });
 
-        Button btnPredict = (Button) findViewById(R.id.btnPredict);
+        btnTrainModel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                svmTrain();
+                Toast.makeText(getApplicationContext(), "Training completed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         btnPredict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -242,13 +237,15 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
     private Runnable insertIntoTrainTestArray = new Runnable() {
         @Override
         public void run() {
-            if (trainingArray.size() < 150) {
+
+            if (trainingArray.size() < SAMPLE_COLUMN_COUNT) {
                 trainingArray.add(sensorData[0]);
                 trainingArray.add(sensorData[1]);
                 trainingArray.add(sensorData[2]);
-                insertHandle.postDelayed(this, 100);
+                insertHandle.postDelayed(this, SAMPLING_FREQUENCY);
 
-            } else if (trainingArray.size() == 150) {
+            } else if (trainingArray.size() == SAMPLE_COLUMN_COUNT) {
+
                 insertHandle.removeCallbacksAndMessages(null);
                 row = String.valueOf(activityLabel);
                 double[] averageByAxes = new double[3];
@@ -256,19 +253,19 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 averageByAxes[1] = 0.0;
                 averageByAxes[2] = 0.0;
                 //average of x,y,z acceleration values
-                for (int i = 0; i < 150; i++) {
-                    if(i%3 == 0)
+                for (int i = 0; i < SAMPLE_COLUMN_COUNT; i++) {
+                    if (i % 3 == 0)
                         averageByAxes[0] += trainingArray.get(i);
-                    if(i%3 == 1)
+                    if (i % 3 == 1)
                         averageByAxes[1] += trainingArray.get(i);
-                    if(i%3 == 2)
+                    if (i % 3 == 2)
                         averageByAxes[2] += trainingArray.get(i);
                     //row += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
-                averageByAxes[0]/=50;
-                averageByAxes[1]/=50;
-                averageByAxes[2]/=50;
-                row += " " + (1) + ":" + averageByAxes[0]+" "+(2) + ":" + averageByAxes[1]+" "+(3) + ":" + averageByAxes[2];
+                averageByAxes[0] /= 50;
+                averageByAxes[1] /= 50;
+                averageByAxes[2] /= 50;
+                row += " " + (1) + ":" + averageByAxes[0] + " " + (2) + ":" + averageByAxes[1] + " " + (3) + ":" + averageByAxes[2];
                 Log.e("DataCollection", row);
                 try {
                     bw.write(row);
@@ -289,23 +286,13 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         }
     };
 
-    private void initiateAccelerometer() {
+    private void startAccelerometerSensor() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         sensorData = new double[4];
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
-    }
-
-    private double[] bigRoundOff(double[] sensorData) {
-        double[] tempData = new double[sensorData.length - 1];
-        for (int i = 0; i < sensorData.length - 1; i++) {
-            BigDecimal bigDecimal = new BigDecimal(sensorData[i]);
-            bigDecimal = bigDecimal.setScale(4, BigDecimal.ROUND_HALF_UP);
-            tempData[i] = bigDecimal.doubleValue();
-        }
-        return tempData;
     }
 
     @Override
@@ -315,9 +302,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         sensorData[1] = sensorEvent.values[1];
         sensorData[2] = sensorEvent.values[2];
         sensorData[3] = sensorEvent.timestamp;
-        xText.setText(String.valueOf(sensorEvent.values[0]));
-        yText.setText(String.valueOf(sensorEvent.values[1]));
-        zText.setText(String.valueOf(sensorEvent.values[2]));
     }
 
     @Override
@@ -348,7 +332,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
     private void svmTrain() {
         String svmOptions = "-t 2 ";
-        jniSvmTrain(svmOptions+appDataTrainingPath+" "+appDataModelPath+" ");
+        jniSvmTrain(svmOptions + appDataTrainingPath + " " + appDataModelPath + " ");
     }
 
     private void createFolders() {
@@ -356,10 +340,10 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         if (folder.exists()) {
             removeDirectory(folder);
         }
-        boolean created = folder.mkdir();
-        int i = 1;
+        folder.mkdir();
     }
 
+    // reference taken from a post on stackoverflow.com
     private void removeDirectory(File dir) {
         if (dir.isDirectory()) {
             File[] files = dir.listFiles();
@@ -373,39 +357,4 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             dir.delete();
         }
     }
-    private void copyAssets(int copyAll) {
-        AssetManager assetManager = getAssets();
-        if (copyAll == 0) {
-            duplicateAsset(assetManager, appDataTrainingPath, trainFileName);
-            duplicateAsset(assetManager, appDataTestPath, testFileName);
-        }
-        if (copyAll == 1) {
-            duplicateAsset(assetManager, appDataTrainingPath, trainFileName);
-            duplicateAsset(assetManager, appDataModelPath, modelFileName);
-            duplicateAsset(assetManager, appDataTestPath, testFileName);
-        }
-    }
-
-    private void duplicateAsset(AssetManager assetManager, String fileTo, String fileFrom) {
-        InputStream instream = null;
-        OutputStream outstream = null;
-        try {
-            instream = assetManager.open(fileFrom);
-            outstream = new FileOutputStream(new File(fileTo), false);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = instream.read(buffer)) > 0) {
-                outstream.write(buffer, 0, length);
-            }
-            instream.close();
-            outstream.flush();
-            outstream.close();
-            Log.e("AssetDuplicate", "Copied file " + fileFrom + " to " + fileTo);
-
-        } catch (IOException e) {
-            Log.e("AssetDuplicate", "Could not copy asset file " + fileFrom + " to " + fileTo);
-            e.printStackTrace();
-        }
-    }
-
 }

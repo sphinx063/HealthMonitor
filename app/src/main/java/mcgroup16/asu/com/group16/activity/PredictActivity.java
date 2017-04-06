@@ -7,10 +7,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,12 +30,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-
-import android.util.Log;
 
 import mcgroup16.asu.com.group16.R;
 
@@ -63,18 +60,24 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
     private final String TAG = PredictActivity.this.getClass().getSimpleName();
 
     // general declarations
-    private static final String ACTION_RUN = " Running";
-    private static final String ACTION_WALK = " Walking";
-    private static final String ACTION_EAT = " Eating";
+    private static final String ACTION_RUN = " running";
+    private static final String ACTION_WALK = " walking";
+    private static final String ACTION_EAT = " eating";
     private static final int LABEL_RUN = 1;
     private static final int LABEL_WALK = 2;
     private static final int LABEL_EAT = 3;
+    private Button btnCollectData = null;
+    private Button btnValidate = null;
+    private Button btnPredict = null;
+    private String fromActivity = null;
 
     // Accelerometer related declarations
     private SensorManager sensorManager = null;
     private Sensor accelerometer = null;
     private double[] sensorData = null;
     private ArrayList<Double> trainingArray;
+    private static final int SAMPLING_FREQUENCY = 100;
+    private static final int SAMPLE_COLUMN_COUNT = 150;
 
     // file handling declarations
     BufferedWriter bw = null;
@@ -83,19 +86,27 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
     String trainFileName = "train";
     String testFileName = "test";
     String modelFileName = "model";
-    String predcitFileName = "output";
+    String predictFileName = "output";
+    String singleTestDataFileName = "test_single";
+    String singlePredictFileName = "output_single";
+
     private String storagePath;
     private String appDataPath;
     private String appDataTrainingPath;
     private String appDataModelPath;
     private String appDataTestPath;
     private String appDataPredictPath;
+    private String appDataSingleTestDataPath;
+    private String appDataSinglePredictPath;
+
     //SVM Parameter fields
     private TextView gammaText = null;
     private TextView kernelTypeText = null;
     private TextView supportVectorText = null;
+
     //Accuracy on the already trained model
     private TextView accuracyText = null;
+
     // handler related declarations
     private Handler insertHandle = null;
 
@@ -106,11 +117,11 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
 
     private native void jniSvmPredict(String cmd);
 
-    private void svmPredict() {
+    private void svmPredict(String testFilePath, String testOutputFilePath) {
         Log.e("Model", appDataModelPath);
-        Log.e("Predict", appDataPredictPath);
-        Log.e("Test", appDataTestPath);
-        jniSvmPredict(appDataTestPath + " " + appDataModelPath + " " + appDataPredictPath);
+        Log.e("Predict", testOutputFilePath);
+        Log.e("Test", testFilePath);
+        jniSvmPredict(testFilePath + " " + appDataModelPath + " " + testOutputFilePath);
         Log.e("SVMPredict", ":Completed");
     }
 
@@ -118,32 +129,52 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_predict);
+
         accuracyText = (TextView) findViewById(R.id.txtValidate);
         Intent intent = getIntent();
-        String fromActivity = intent.getStringExtra("EXTRA_FROM_ACTIVITY");
+        fromActivity = intent.getStringExtra("EXTRA_FROM_ACTIVITY");
         initDataPaths();
-        //If coming from Main activity clear libsvm folder and copy train,model,test files from asset
-        if (fromActivity.equalsIgnoreCase("Main")) {
-            createFolders();
-            copyAssets(1);
-            accuracyText.setText(String.valueOf(computeAccuracy()));
-            Log.i("Accuracy", String.valueOf(computeAccuracy()));
-        }
-        HashMap<String, String> map = (HashMap<String, String>) getModelParameters();
-        populateSVMParameters(map);
         initiateAccelerometer();
 
-        final Button btnCollect = (Button) findViewById(R.id.btnCreateData);
-        btnCollect.setOnClickListener(new View.OnClickListener() {
+        btnCollectData = (Button) findViewById(R.id.btnCreateData);
+        btnCollectData.setEnabled(false);
+        btnPredict = (Button) findViewById(R.id.btnPredict);
+        btnPredict.setEnabled(false);
+
+        btnValidate = (Button) findViewById(R.id.btnValidate);
+        btnValidate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // If coming from Main activity clear libsvm folder and copy train, model, test files from asset
+                if (fromActivity.equalsIgnoreCase("Main")) {
+                    createFolders();
+                    copyAssets(1);
+                    accuracyText.setText(String.valueOf(computeAccuracy()));
+                    Log.i("Accuracy", String.valueOf(computeAccuracy()));
+                } else {
+                    svmPredict(appDataTestPath, appDataPredictPath);
+                    accuracyText.setText(String.valueOf(computeAccuracy()));
+                    Log.i("Accuracy", String.valueOf(computeAccuracy()));
+                }
+                HashMap<String, String> map = (HashMap<String, String>) getModelParameters();
+                populateSVMParameters(map);
+                btnCollectData.setEnabled(true);
+                btnPredict.setEnabled(true);
+            }
+        });
+
+        btnCollectData = (Button) findViewById(R.id.btnCreateData);
+        btnCollectData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnCollectData.setEnabled(false);
                 Toast.makeText(getApplicationContext(), "Data collection started", Toast.LENGTH_SHORT).show();
-                btnCollect.setEnabled(false);
 
                 FileWriter fw = null;
                 try {
 
-                    File sampleDataFile = new File(appDataTestPath);
+                    File sampleDataFile = new File(appDataSingleTestDataPath);
                     if (!sampleDataFile.exists()) {
                         sampleDataFile.createNewFile();
                     }
@@ -159,16 +190,15 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             }
         });
 
-        Button btnPredict = (Button) findViewById(R.id.btnPredict);
+        btnPredict = (Button) findViewById(R.id.btnPredict);
         btnPredict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                svmPredict();
-                //accuracyText.setText(String.valueOf(computeAccuracy()));
+                svmPredict(appDataSingleTestDataPath, appDataSinglePredictPath);
                 Log.i(TAG, "SVM predict completed");
 
                 try {
-                    File outputFile = new File(appDataPredictPath);
+                    File outputFile = new File(appDataSinglePredictPath);
                     br = new BufferedReader(new FileReader(outputFile));
                     String readLine = "";
                     int label = -10;
@@ -187,16 +217,12 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                         case LABEL_EAT:
                             txtPredict.setText(ACTION_EAT);
                             break;
-                        default:
-                            Toast.makeText(getApplicationContext(), "default switch", Toast.LENGTH_LONG);
                     }
-
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "Error: " + e);
                 }
-                Toast.makeText(getApplicationContext(), "Prediction completed", Toast.LENGTH_SHORT).show();
-                btnCollect.setEnabled(true);
+                btnCollectData.setEnabled(true);
             }
         });
     }
@@ -204,32 +230,31 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
     private Runnable insertIntoTrainTestArray = new Runnable() {
         @Override
         public void run() {
-            if (trainingArray.size() < 150) {
+            if (trainingArray.size() < SAMPLE_COLUMN_COUNT) {
                 trainingArray.add(sensorData[0]);
                 trainingArray.add(sensorData[1]);
                 trainingArray.add(sensorData[2]);
-                insertHandle.postDelayed(this, 100);
+                insertHandle.postDelayed(this, SAMPLING_FREQUENCY);
 
                 row = String.valueOf(1);
-            } else if (trainingArray.size() == 150) {
+            } else if (trainingArray.size() == SAMPLE_COLUMN_COUNT) {
                 insertHandle.removeCallbacksAndMessages(null);
                 double[] averageByAxes = new double[3];
                 averageByAxes[0] = 0.0;
                 averageByAxes[1] = 0.0;
                 averageByAxes[2] = 0.0;
-                for (int i = 0; i < 150; i++) {
-                    if(i%3 == 0)
+                for (int i = 0; i < SAMPLE_COLUMN_COUNT; i++) {
+                    if (i % 3 == 0)
                         averageByAxes[0] += trainingArray.get(i);
-                    if(i%3 == 1)
+                    if (i % 3 == 1)
                         averageByAxes[1] += trainingArray.get(i);
-                    if(i%3 == 2)
+                    if (i % 3 == 2)
                         averageByAxes[2] += trainingArray.get(i);
-                    //row += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
-                averageByAxes[0]/=50;
-                averageByAxes[1]/=50;
-                averageByAxes[2]/=50;
-                row += " " + (1) + ":" + averageByAxes[0]+" "+(2) + ":" + averageByAxes[1]+" "+(3) + ":" + averageByAxes[2];
+                averageByAxes[0] /= 50;
+                averageByAxes[1] /= 50;
+                averageByAxes[2] /= 50;
+                row += " " + (1) + ":" + averageByAxes[0] + " " + (2) + ":" + averageByAxes[1] + " " + (3) + ":" + averageByAxes[2];
                 try {
                     bw.write(row);
                     bw.newLine();
@@ -286,11 +311,9 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         appDataTrainingPath = appDataPath + "/" + trainFileName;
         appDataTestPath = appDataPath + "/" + testFileName;
         appDataModelPath = appDataPath + "/" + modelFileName;
-        appDataPredictPath = appDataPath + "/" + predcitFileName;
-        Log.i(TAG, "App data path: " + appDataPath);
-        Log.i(TAG, "test data path: " + appDataTestPath);
-        Log.i(TAG, "model path: " + appDataModelPath);
-        Log.i(TAG, "predicted data path: " + appDataPredictPath);
+        appDataPredictPath = appDataPath + "/" + predictFileName;
+        appDataSingleTestDataPath = appDataPath + "/" + singleTestDataFileName;
+        appDataSinglePredictPath = appDataPath + "/" + singlePredictFileName;
     }
 
     private void createFolders() {
@@ -298,7 +321,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         if (folder.exists()) {
             removeDirectory(folder);
         }
-        boolean created = folder.mkdir();
+        folder.mkdir();
     }
 
     private static void removeDirectory(File dir) {
@@ -325,7 +348,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             duplicateAsset(assetManager, appDataTrainingPath, trainFileName);
             duplicateAsset(assetManager, appDataModelPath, modelFileName);
             duplicateAsset(assetManager, appDataTestPath, testFileName);
-            duplicateAsset(assetManager, appDataPredictPath, predcitFileName);
+            duplicateAsset(assetManager, appDataPredictPath, predictFileName);
         }
     }
 
@@ -340,12 +363,10 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
             while ((length = instream.read(buffer)) > 0) {
                 outstream.write(buffer, 0, length);
             }
-            //outstream.write(10);
-            instream.close();
-            outstream.flush();
-            outstream.close();
             Log.e("AssetDuplicate", "Copied file " + fileFrom + " to " + fileTo);
-
+            outstream.flush();
+            instream.close();
+            outstream.close();
         } catch (IOException e) {
             Log.e("AssetDuplicate", "Could not copy asset file " + fileFrom + " to " + fileTo);
             e.printStackTrace();
@@ -355,8 +376,11 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
     private Map<String, String> getModelParameters() {
         File model = new File(appDataModelPath);
         HashMap<String, String> modelParameters = new HashMap<>();
+        BufferedReader bufferedReader = null;
+        FileInputStream fis = null;
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(model)));
+            fis = new FileInputStream(model);
+            bufferedReader = new BufferedReader(new InputStreamReader(fis));
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.equals("SV")) {
@@ -367,11 +391,12 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                 String value = tokens[1];
                 modelParameters.put(parameter, value);
             }
+            fis.close();
             bufferedReader.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
         return modelParameters;
     }
@@ -383,7 +408,6 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         gammaText.setText(parameterMap.get(SVM.GAMMA.toString()));
         kernelTypeText.setText(parameterMap.get(SVM.KERNEL_TYPE.toString()));
         supportVectorText.setText(parameterMap.get(SVM.SV_COUNT.toString()));
-
     }
 
     private double computeAccuracy() {
@@ -392,9 +416,15 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         int rowNumber = 0;
         int totalCorrectPrediction = 0;
         ArrayList<String> testLabels = new ArrayList<>();
+        BufferedReader brPredict = null;
+        BufferedReader brTest = null;
+        FileInputStream fisPredict = null;
+        FileInputStream fisTest = null;
         try {
-            BufferedReader brPredict = new BufferedReader(new InputStreamReader(new FileInputStream(predictFile)));
-            BufferedReader brTest = new BufferedReader(new InputStreamReader(new FileInputStream(testFile)));
+            fisPredict = new FileInputStream(predictFile);
+            fisTest = new FileInputStream(testFile);
+            brPredict = new BufferedReader(new InputStreamReader(fisPredict));
+            brTest = new BufferedReader(new InputStreamReader(fisTest));
             String line = null;
             while ((line = brTest.readLine()) != null) {
                 String[] columns = line.trim().split("\\s+");
@@ -407,10 +437,17 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                 }
                 rowNumber++;
             }
+            fisPredict.close();
+            fisTest.close();
+            brPredict.close();
+            brTest.close();
+
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
         }
         return (totalCorrectPrediction * 1.0 / (rowNumber)) * 100;
     }

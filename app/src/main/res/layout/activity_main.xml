@@ -15,58 +15,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_standard_top_margin"
-        android:layout_marginTop="@dimen/activity_standard_top_margin"
+        android:layout_marginTop="@dimen/activity_main_top_margin"
         android:gravity="center"
         android:text="@string/lbl_dashboard_page"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/activity_heading_size" />
 
     <Button
-        android:id="@+id/btnCreateData"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_standard_top_margin"
-        android:text="@string/btn_lbl_create_data" />
-
-    <TextView
-        android:id="@+id/lblCreateData"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_standard_top_margin"
-        android:gravity="center"
-        android:text="@string/lbl_create_data"
-        android:textColor="@color/colorPrimaryDark" />
-
-    <Button
         android:id="@+id/btnPredict"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_standard_top_margin"
+        android:layout_marginTop="@dimen/activity_main_top_margin"
         android:text="@string/btn_lbl_valid_predict" />
 
     <TextView
         android:id="@+id/lblPredictData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_standard_top_margin"
+        android:layout_marginBottom="@dimen/activity_main_top_margin"
         android:gravity="center"
         android:text="@string/lbl_predict_data"
         android:textColor="@color/colorPrimaryDark" />
 
     <Button
-        android:id="@+id/btn_graph"
+        android:id="@+id/btnCreateData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_standard_top_margin"
-        android:text="@string/btn_lbl_plot_graph" />
+        android:layout_marginTop="@dimen/activity_main_top_margin"
+        android:text="@string/btn_lbl_create_data" />
 
     <TextView
-        android:id="@+id/lblPlotGraph"
+        android:id="@+id/lblCreateData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_standard_top_margin"
+        android:layout_marginBottom="@dimen/activity_main_top_margin"
         android:gravity="center"
-        android:text="@string/lbl_plot_graph"
+        android:text="@string/lbl_create_data"
         android:textColor="@color/colorPrimaryDark" />
+
 
 </LinearLayout>
