@@ -306,7 +306,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
-
+        Log.i(TAG, "Accuracy Changed");
     }
 
     @Override
