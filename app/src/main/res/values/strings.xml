@@ -18,6 +18,7 @@
     <string name="lbl_svm_gamma">Gamma:</string>
     <string name="lbl_svm_total_sv">Support Vector Count:</string>
 
+    <string name="btn_lbl_validate">Validate Accuracy</string>
     <string name="btn_lbl_next">Next</string>
     <string name="btn_lbl_clear">Clear</string>
     <string name="btn_lbl_run">Run</string>
