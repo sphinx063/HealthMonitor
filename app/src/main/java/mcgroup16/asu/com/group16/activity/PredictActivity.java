@@ -235,26 +235,27 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                 trainingArray.add(sensorData[1]);
                 trainingArray.add(sensorData[2]);
                 insertHandle.postDelayed(this, SAMPLING_FREQUENCY);
-
                 row = String.valueOf(1);
             } else if (trainingArray.size() == SAMPLE_COLUMN_COUNT) {
                 insertHandle.removeCallbacksAndMessages(null);
-                double[] averageByAxes = new double[3];
+/*                double[] averageByAxes = new double[3];
                 averageByAxes[0] = 0.0;
                 averageByAxes[1] = 0.0;
-                averageByAxes[2] = 0.0;
+                averageByAxes[2] = 0.0;*/
                 for (int i = 0; i < SAMPLE_COLUMN_COUNT; i++) {
-                    if (i % 3 == 0)
+                    /*if (i % 3 == 0)
                         averageByAxes[0] += trainingArray.get(i);
                     if (i % 3 == 1)
                         averageByAxes[1] += trainingArray.get(i);
                     if (i % 3 == 2)
-                        averageByAxes[2] += trainingArray.get(i);
+                        averageByAxes[2] += trainingArray.get(i);*/
+                    row += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
-                averageByAxes[0] /= 50;
+                /*averageByAxes[0] /= 50;
                 averageByAxes[1] /= 50;
                 averageByAxes[2] /= 50;
                 row += " " + (1) + ":" + averageByAxes[0] + " " + (2) + ":" + averageByAxes[1] + " " + (3) + ":" + averageByAxes[2];
+                */
                 try {
                     bw.write(row);
                     bw.newLine();

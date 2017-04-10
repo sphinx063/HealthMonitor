@@ -124,7 +124,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                 RadioButton radioButtonChoice = (RadioButton) findViewById(choice);
                 String choiceOption = radioButtonChoice.getText().toString();
 
-                if (choiceOption.equals(trainFileName)) {
+                if (choiceOption.equalsIgnoreCase(trainFileName)) {
                     trainOrTestFile = trainFileName;
                 } else {
                     trainOrTestFile = testFileName;
@@ -173,7 +173,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                     RadioButton radioButtonChoice = (RadioButton) findViewById(choice);
                     String choiceOption = radioButtonChoice.getText().toString();
 
-                    if (choiceOption.equals(trainFileName)) {
+                    if (choiceOption.equalsIgnoreCase(trainFileName)) {
                         trainOrTestFile = trainFileName;
                     } else {
                         trainOrTestFile = testFileName;
@@ -248,24 +248,24 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
                 insertHandle.removeCallbacksAndMessages(null);
                 row = String.valueOf(activityLabel);
-                double[] averageByAxes = new double[3];
-                averageByAxes[0] = 0.0;
-                averageByAxes[1] = 0.0;
-                averageByAxes[2] = 0.0;
+//                double[] averageByAxes = new double[3];
+//                averageByAxes[0] = 0.0;
+//                averageByAxes[1] = 0.0;
+//                averageByAxes[2] = 0.0;
                 //average of x,y,z acceleration values
                 for (int i = 0; i < SAMPLE_COLUMN_COUNT; i++) {
-                    if (i % 3 == 0)
+/*                    if (i % 3 == 0)
                         averageByAxes[0] += trainingArray.get(i);
                     if (i % 3 == 1)
                         averageByAxes[1] += trainingArray.get(i);
                     if (i % 3 == 2)
-                        averageByAxes[2] += trainingArray.get(i);
-                    //row += " " + (i + 1) + ":" + trainingArray.get(i);
+                        averageByAxes[2] += trainingArray.get(i);*/
+                    row += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
-                averageByAxes[0] /= 50;
-                averageByAxes[1] /= 50;
-                averageByAxes[2] /= 50;
-                row += " " + (1) + ":" + averageByAxes[0] + " " + (2) + ":" + averageByAxes[1] + " " + (3) + ":" + averageByAxes[2];
+//                averageByAxes[0] /= 50;
+//                averageByAxes[1] /= 50;
+//                averageByAxes[2] /= 50;
+//                row += " " + (1) + ":" + averageByAxes[0] + " " + (2) + ":" + averageByAxes[1] + " " + (3) + ":" + averageByAxes[2];
                 Log.e("DataCollection", row);
                 try {
                     bw.write(row);
