@@ -90,6 +90,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         System.loadLibrary("jnilibsvm");
     }
 
+    // Credit - library taken from - https://github.com/yctung/AndroidLibSvm
     private native void jniSvmTrain(String cmd);
 
     @Override
@@ -101,7 +102,6 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
         initDataPaths();
         createFolders();
         startAccelerometerSensor();
-
         btnTrainModel = (Button) findViewById(R.id.btn_train);
         btnTrainModel.setEnabled(false);
 
@@ -209,6 +209,7 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
                         btnPredict.setEnabled(true);
                     }
 
+
                 } catch (IOException e) {
                     Log.e(TAG, "Error: " + e);
                 }
@@ -248,24 +249,9 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
 
                 insertHandle.removeCallbacksAndMessages(null);
                 row = String.valueOf(activityLabel);
-//                double[] averageByAxes = new double[3];
-//                averageByAxes[0] = 0.0;
-//                averageByAxes[1] = 0.0;
-//                averageByAxes[2] = 0.0;
-                //average of x,y,z acceleration values
                 for (int i = 0; i < SAMPLE_COLUMN_COUNT; i++) {
-/*                    if (i % 3 == 0)
-                        averageByAxes[0] += trainingArray.get(i);
-                    if (i % 3 == 1)
-                        averageByAxes[1] += trainingArray.get(i);
-                    if (i % 3 == 2)
-                        averageByAxes[2] += trainingArray.get(i);*/
                     row += " " + (i + 1) + ":" + trainingArray.get(i);
                 }
-//                averageByAxes[0] /= 50;
-//                averageByAxes[1] /= 50;
-//                averageByAxes[2] /= 50;
-//                row += " " + (1) + ":" + averageByAxes[0] + " " + (2) + ":" + averageByAxes[1] + " " + (3) + ":" + averageByAxes[2];
                 Log.e("DataCollection", row);
                 try {
                     bw.write(row);
@@ -357,4 +343,5 @@ public class DataCollectActivity extends AppCompatActivity implements SensorEven
             dir.delete();
         }
     }
+
 }

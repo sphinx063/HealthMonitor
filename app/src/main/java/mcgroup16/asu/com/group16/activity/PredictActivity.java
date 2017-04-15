@@ -115,6 +115,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         System.loadLibrary("jnilibsvm");
     }
 
+    // Credit - library taken from - https://github.com/yctung/AndroidLibSvm
     private native void jniSvmPredict(String cmd);
 
     private void svmPredict(String testFilePath, String testOutputFilePath) {
@@ -150,11 +151,11 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
                 if (fromActivity.equalsIgnoreCase("Main")) {
                     createFolders();
                     copyAssets(1);
-                    accuracyText.setText(String.valueOf(computeAccuracy()));
+                    accuracyText.setText(String.valueOf(computeAccuracy())+"%");
                     Log.i("Accuracy", String.valueOf(computeAccuracy()));
                 } else {
                     svmPredict(appDataTestPath, appDataPredictPath);
-                    accuracyText.setText(String.valueOf(computeAccuracy()));
+                    accuracyText.setText(String.valueOf(computeAccuracy())+"%");
                     Log.i("Accuracy", String.valueOf(computeAccuracy()));
                 }
                 HashMap<String, String> map = (HashMap<String, String>) getModelParameters();
@@ -339,6 +340,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         }
     }
 
+    // Credit - Reference taken from - https://github.com/yctung/AndroidLibSvm
     private void copyAssets(int copyAll) {
         AssetManager assetManager = getAssets();
         if (copyAll == 0) {
@@ -450,7 +452,7 @@ public class PredictActivity extends AppCompatActivity implements SensorEventLis
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
-        return (totalCorrectPrediction * 1.0 / (rowNumber)) * 100;
+        return Math.round(((totalCorrectPrediction * 1.0 / rowNumber)*100)*100)/100.0;
     }
 
 }
